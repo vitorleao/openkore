@@ -20,36 +20,96 @@
 package Utils;
 
 use strict;
-use Time::HiRes qw(time usleep);
-use IO::Socket::INET;
-use Math::Trig;
-use Text::Wrap;
-use Scalar::Util;
+
+
 use Exporter;
 use base qw(Exporter);
-use Config;
-use FastUtils;
 
-use Globals qw($masterServer);
+
+#### CPAN or src/deps Modules:
+
+use Config qw(
+	%Config
+	);
+use Time::HiRes qw(
+	time usleep
+	);
+
+#### Openkore Modules:
+
+use FastUtils;
+use Globals qw(
+	$masterServer
+	);
 use Utils::DataStructures (':all', '!/^binFind$/');
 
+
+#### Package Variables
 
 our @EXPORT = (
 	@{$Utils::DataStructures::EXPORT_TAGS{all}},
 
 	# Math
-	qw(calcPosFromTime calcPosition calcTime checkMovementDirection countSteps distance
-	intToSignedInt intToSignedShort
-	blockDistance getVector moveAlong moveAlongVector
-	normalize vectorToDegree max min round ceil),
+	qw(
+		blockDistance
+		calcPosFromTime
+		calcPosition
+		calcTime
+		ceil
+		checkMovementDirection
+		countSteps
+		distance
+		getVector
+		intToSignedInt
+		intToSignedShort
+		max
+		min
+		moveAlong
+		moveAlongVector
+		normalize
+		round
+		vectorToDegree
+	),
 	# OS-specific
-	qw(checkLaunchedApp launchApp launchScript),
+	qw(
+		checkLaunchedApp
+		launchApp
+		launchScript
+	),
 	# Other stuff
-	qw(dataWaiting dumpHash formatNumber getCoordString getCoordString2
-	getFormattedDate getHex giveHex getRange getTickCount
-	inRange judgeSkillArea makeCoordsDir makeCoordsXY makeCoordsFromTo makeDistMap makeIP encodeIP parseArgs
-	quarkToString stringToQuark shiftPack swrite timeConvert timeOut
-	urldecode urlencode unShiftPack vocalString wrapText pin_encode)
+	qw(
+		dataWaiting
+		dumpHash
+		formatNumber
+		getCoordString
+		getCoordString2
+		getFormattedDate
+		getHex
+		giveHex
+		getRange
+		getTickCount
+		inRange
+		judgeSkillArea
+		makeCoordsDir
+		makeCoordsXY
+		makeCoordsFromTo
+		makeDistMap
+		makeIP
+		encodeIP
+		parseArgs
+		quarkToString
+		stringToQuark
+		shiftPack
+		swrite
+		timeConvert
+		timeOut
+		urldecode
+		urlencode
+		unShiftPack
+		vocalString
+		wrapText
+		pin_encode
+	)
 );
 
 our %strings;
