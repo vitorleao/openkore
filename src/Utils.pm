@@ -31,6 +31,9 @@ use base qw(Exporter);
 use Config qw(
 	%Config
 	);
+use Math::Trig qw(
+	rad2deg
+	);
 use Time::HiRes qw(
 	time usleep
 	);
