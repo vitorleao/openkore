@@ -1,4 +1,5 @@
 #########################################################################
+#########################################################################
 #  OpenKore - Utility Functions
 #
 #  Copyright (c) 2004,2005,2006,2007 OpenKore Development Team
@@ -32,10 +33,14 @@ use Config qw(
 	%Config
 	);
 use Math::Trig qw(
+	atan2
 	rad2deg
 	);
+use Text::Wrap qw(
+	columns
+	);
 use Time::HiRes qw(
-	time usleep
+	time
 	);
 
 #### Openkore Modules:
