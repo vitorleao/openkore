@@ -37,7 +37,7 @@ use Math::Trig qw(
 	rad2deg
 	);
 use Text::Wrap qw(
-	columns
+	$columns
 	);
 use Time::HiRes qw(
 	time
