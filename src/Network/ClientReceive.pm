@@ -8,14 +8,46 @@
 package Network::ClientReceive;
 
 use strict;
-use Modules 'register';
-use Time::HiRes qw(time);
 
-use Globals qw($packetParser $incomingMessages %config $char %ai_v %timeout $shopstarted $firstLoginMap $sentWelcomeMessage @lastpm %lastpm);
-use Misc qw(configModify visualDump);
-use Log qw(message debug warning);
-use Translation;
-use Utils qw(existsInList);
+
+#### CPAN or src/deps Modules:
+
+use Modules 'register';
+use Time::HiRes qw(
+	time
+	);
+
+#### Openkore Modules:
+
+use Globals qw(
+	%ai_v
+	$char
+	%config
+	$firstLoginMap
+	$incomingMessages
+	@lastpm
+	%lastpm
+	$packetParser
+	$sentWelcomeMessage
+	$shopstarted
+	%timeout
+	);
+use Log qw(
+	debug
+	message
+	);
+use Misc qw(
+	configModify
+	visualDump
+	);
+use Translation qw(
+	T
+	TF
+	);
+use Utils qw(
+	existsInList
+	);
+
 
 sub new {
 	my $self = {};
