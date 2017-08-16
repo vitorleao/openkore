@@ -34,26 +34,70 @@
 package Network::DirectConnection;
 
 use strict;
-use Modules 'register';
+
 use Exporter;
 use base qw(Exporter);
-use Time::HiRes qw(time);
+
+
+#### CPAN or src/deps Modules:
+
+use Modules 'register';
+use Time::HiRes qw(
+	time
+	);
 use IO::Socket::INET;
 use utf8;
 use Scalar::Util;
 use File::Spec;
 
-use Globals;
+use Globals qw(
+	$accountID
+	$accountSex
+	$accountSex2
+	$captcha_state
+	$charID
+	%config
+	$conState
+	$conState_tries
+	$incomingMessages
+	$initSync
+	$interface
+	$map_ip
+	$map_port
+	$masterServer
+	%masterServers
+	$messageSender
+	$net
+	$packetParser
+	$quit
+	$reconnectCount
+	$secureLoginKey
+	@servers
+	$sessionID
+	$sessionID2
+	$shopstarted
+	%timeout
+	%timeout_ex
+	);
+use Interface;
 use Log qw(message warning error);
-use Misc qw(chatLog);
+use Misc qw(
+	chatLog
+	);
 use Network;
 use Network::Send ();
 use Plugins;
 use Settings;
-use Interface;
-use Utils qw(dataWaiting timeOut);
+use Utils qw(
+	dataWaiting
+	timeOut
+	);
 use Utils::Exceptions;
-use Translation;
+use Translation qw(
+	T
+	TF
+	);
+
 
 ##
 # Network::DirectConnection->new([wrapper])
@@ -359,7 +403,7 @@ sub checkConnection {
 			$conState = 1.2;
 			
 			# Saving Last Request Time (Logon) (GG/HS Query)
-			$timeout{poseidon_wait_reply}{time} = time;			
+			$timeout{poseidon_wait_reply}{time} = time;
 			
 			return;
 		}
