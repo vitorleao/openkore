@@ -33,7 +33,6 @@ use Config qw(
 	%Config
 	);
 use Math::Trig qw(
-	atan2
 	rad2deg
 	);
 use Text::Wrap qw(
