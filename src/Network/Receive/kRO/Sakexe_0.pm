@@ -874,6 +874,9 @@ sub buy_result {
 	} else {
 		error TF("Buy failed (failure code %s).\n", $args->{fail});
 	}
+	if (AI::is("buyAuto")) {
+		AI::args->{recv_buy_packet} = 1;
+	}
 }
 
 sub card_merge_list {
@@ -1066,6 +1069,10 @@ sub chat_users {
 	}
 
 	message TF("You have joined the Chat Room %s\n", $chat->{title});
+	
+	Plugins::callHook('chat_joined', {
+		chat => $chat,
+	});
 }
 
 sub cast_cancelled {
@@ -1925,7 +1932,7 @@ sub npc_talk {
 	if (!AI::is("NPC") && !(AI::is("route") && $char->args->getSubtask && UNIVERSAL::isa($char->args->getSubtask, 'Task::TalkNPC'))) {
 		my $nameID = unpack 'V', $args->{ID};
 		debug "An unexpected npc conversation has started, auto-creating a TalkNPC Task\n";
-		my $task = Task::TalkNPC->new(type => 'autotalk', nameID => $nameID);
+		my $task = Task::TalkNPC->new(type => 'autotalk', nameID => $nameID, ID => $args->{ID});
 		AI::queue("NPC", $task);
 		# TODO: The following npc_talk hook is only added on activation.
 		# Make the task module or AI listen to the hook instead
@@ -4535,6 +4542,9 @@ sub sell_result {
 		error T("Sell failed.\n");
 	} else {
 		message T("Sell completed.\n"), "success";
+	}
+	if (AI::is("sellAuto")) {
+		AI::args->{recv_sell_packet} = 1;
 	}
 }
 
