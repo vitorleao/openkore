@@ -280,7 +280,7 @@ sub run {
 		$handler = $customCommands{$switch}{callback} if ($customCommands{$switch});
 		$handler = $handlers{$switch} if (!$handler && $handlers{$switch});
 
-		if (($switch eq 'pause') && (!$cmdQueue) && (!$AI_forcedOff) && ($net->getState() == Network::IN_GAME)) {
+		if (($switch eq 'pause') && (!$cmdQueue) && AI::state != AI::AUTO && ($net->getState() == Network::IN_GAME)) {
 			$cmdQueue = 1;
 			$cmdQueueStartTime = time;
 			if ($args > 0) {
@@ -291,7 +291,7 @@ sub run {
 			debug "Command queueing started\n", "ai";
 		} elsif (($switch eq 'pause') && ($cmdQueue > 0)) {
 			push(@cmdQueueList, $command);
-		} elsif (($switch eq 'pause') && (($AI_forcedOff == 1) || ($net->getState() != Network::IN_GAME))) {
+		} elsif (($switch eq 'pause') && (AI::state != AI::AUTO || ($net->getState() != Network::IN_GAME))) {
 			error T("Cannot use pause command now.\n");
 		} elsif (($handler) && ($cmdQueue > 0) && (!defined binFind(\@cmdQueuePriority,$switch) && ($command ne 'cart') && ($command ne 'storage'))) {
 			push(@cmdQueueList, $command);
@@ -491,45 +491,39 @@ sub cmdAI {
 
 	} elsif ($args eq 'on' || $args eq 'auto') {
 		# Set AI to auto mode
-		if ($AI == AI::AUTO) {
+		if (AI::state == AI::AUTO) {
 			message T("AI is already set to auto mode\n"), "success";
 		} else {
-			$AI = AI::AUTO;
-			undef $AI_forcedOff;
+			AI::state(AI::AUTO);
 			message T("AI set to auto mode\n"), "success";
 		}
 	} elsif ($args eq 'manual') {
 		# Set AI to manual mode
-		if ($AI == AI::MANUAL) {
+		if (AI::state == AI::MANUAL) {
 			message T("AI is already set to manual mode\n"), "success";
 		} else {
-			$AI = AI::MANUAL;
-			$AI_forcedOff = 1;
+			AI::state(AI::MANUAL);
 			message T("AI set to manual mode\n"), "success";
 		}
 	} elsif ($args eq 'off') {
 		# Turn AI off
-		if ($AI == AI::OFF) {
+		if (AI::state == AI::OFF) {
 			message T("AI is already off\n"), "success";
 		} else {
-			$AI = AI::OFF;
-			$AI_forcedOff = 1;
+			AI::state(AI::OFF);
 			message T("AI turned off\n"), "success";
 		}
 
 	} elsif ($args eq '') {
 		# Toggle AI
-		if ($AI == AI::AUTO) {
-			$AI = AI::OFF;
-			$AI_forcedOff = 1;
+		if (AI::state == AI::AUTO) {
+			AI::state(AI::OFF);
 			message T("AI turned off\n"), "success";
-		} elsif ($AI == AI::OFF) {
-			$AI = AI::MANUAL;
-			$AI_forcedOff = 1;
+		} elsif (AI::state == AI::OFF) {
+			AI::state(AI::MANUAL);
 			message T("AI set to manual mode\n"), "success";
-		} elsif ($AI == AI::MANUAL) {
-			$AI = AI::AUTO;
-			undef $AI_forcedOff;
+		} elsif (AI::state == AI::MANUAL) {
+			AI::state(AI::AUTO);
 			message T("AI set to auto mode\n"), "success";
 		}
 
@@ -542,11 +536,11 @@ sub cmdAI {
 sub cmdAIv {
 	# Display current AI sequences
 	my $on;
-	if ($AI == AI::OFF) {
+	if (AI::state == AI::OFF) {
 		message TF("ai_seq (off) = %s\n", "@ai_seq"), "list";
-	} elsif ($AI == AI::MANUAL) {
+	} elsif (AI::state == AI::MANUAL) {
 		message TF("ai_seq (manual) = %s\n", "@ai_seq"), "list";
-	} elsif ($AI == AI::AUTO) {
+	} elsif (AI::state == AI::AUTO) {
 		message TF("ai_seq (auto) = %s\n", "@ai_seq"), "list";
 	}
 	message T("solution\n"), "list" if (AI::args->{'solution'});
@@ -1662,13 +1656,13 @@ sub cmdDebug {
 
 		message center(T(" Debug information "), 56, '-') ."\n".
 			TF("ConState: %s\t\tConnected: %s\n" .
-			"AI enabled: %s\t\tAI_forcedOff: %s\n" .
+			"AI enabled: %s\n" .
 			"\@ai_seq = %s\n" .
 			"Last packet: %.2f secs ago\n" .
 			"\$timeout{ai}: %.2f secs ago  (value should be >%s)\n" .
 			"Last AI() call: %.2f secs ago\n" .
 			('-'x56) . "\n",
-		$conState, $connected, $AI, $AI_forcedOff, "@ai_seq", $time, $ai_timeout,
+		$conState, $connected, AI::state, "@ai_seq", $time, $ai_timeout,
 		$timeout{'ai'}{'timeout'}, $ai_time), "list";
 	}
 }
@@ -4484,44 +4478,7 @@ sub cmdStand {
 }
 
 sub cmdStatAdd {
-	# Add status point
-	if (!$net || $net->getState() != Network::IN_GAME) {
-		error TF("You must be logged in the game to use this command '%s'\n", shift);
-		return;
-	}
-	my (undef, $arg) = @_;
-	if ($arg ne "str" && $arg ne "agi" && $arg ne "vit" && $arg ne "int"
-	 && $arg ne "dex" && $arg ne "luk") {
-		error T("Syntax Error in function 'stat_add' (Add Status Point)\n" .
-			"Usage: stat_add <str | agi | vit | int | dex | luk>\n");
-
-	} elsif ($char->{'$arg'} >= 99 && !$config{statsAdd_over_99}) {
-		error T("Error in function 'stat_add' (Add Status Point)\n" .
-			"You cannot add more stat points than 99\n");
-
-	} elsif ($char->{"points_$arg"} > $char->{'points_free'}) {
-		error TF("Error in function 'stat_add' (Add Status Point)\n" .
-			"Not enough status points to increase %s\n", $arg);
-
-	} else {
-		my $ID;
-		if ($arg eq "str") {
-			$ID = STATUS_STR;
-		} elsif ($arg eq "agi") {
-			$ID = STATUS_AGI;
-		} elsif ($arg eq "vit") {
-			$ID = STATUS_VIT;
-		} elsif ($arg eq "int") {
-			$ID = STATUS_INT;
-		} elsif ($arg eq "dex") {
-			$ID = STATUS_DEX;
-		} elsif ($arg eq "luk") {
-			$ID = STATUS_LUK;
-		}
-
-		$char->{$arg} += 1;
-		$messageSender->sendAddStatusPoint($ID);
-	}
+	cmdStats("st", "add ".$_[1]);
 }
 
 sub cmdStats {
@@ -4529,28 +4486,70 @@ sub cmdStats {
 		error T("Character stats information not yet available.\n");
 		return;
 	}
-	my $guildName = $char->{guild} ? $char->{guild}{name} : T("None");
-	my $msg = center(T(" Char Stats "), 44, '-') ."\n".
-		swrite(TF(
-		"Str: \@<<+\@<< #\@< Atk:  \@<<+\@<< Def:  \@<<+\@<<\n" .
-		"Agi: \@<<+\@<< #\@< Matk: \@<<\@\@<< Mdef: \@<<+\@<<\n" .
-		"Vit: \@<<+\@<< #\@< Hit:  \@<<     Flee: \@<<+\@<<\n" .
-		"Int: \@<<+\@<< #\@< Critical: \@<< Aspd: \@<<\n" .
-		"Dex: \@<<+\@<< #\@< Status Points: \@<<<\n" .
-		"Luk: \@<<+\@<< #\@< Guild: \@<<<<<<<<<<<<<<<<<<<<<<<\n\n" .
-		"Hair color: \@<<<<<<<<<<<<<<<<<\n" .
-		"Walk speed: %.2f secs per block", $char->{walk_speed}),
-		[$char->{'str'}, $char->{'str_bonus'}, $char->{'points_str'}, $char->{'attack'}, $char->{'attack_bonus'}, $char->{'def'}, $char->{'def_bonus'},
-		$char->{'agi'}, $char->{'agi_bonus'}, $char->{'points_agi'}, $char->{'attack_magic_min'}, '~', $char->{'attack_magic_max'}, $char->{'def_magic'}, $char->{'def_magic_bonus'},
-		$char->{'vit'}, $char->{'vit_bonus'}, $char->{'points_vit'}, $char->{'hit'}, $char->{'flee'}, $char->{'flee_bonus'},
-		$char->{'int'}, $char->{'int_bonus'}, $char->{'points_int'}, $char->{'critical'}, $char->{'attack_speed'},
-		$char->{'dex'}, $char->{'dex_bonus'}, $char->{'points_dex'}, $char->{'points_free'},
-		$char->{'luk'}, $char->{'luk_bonus'}, $char->{'points_luk'}, $guildName,
-		"$haircolors{$char->{hair_color}} ($char->{hair_color})"]);
+	
+	my ($subcmd, $arg) = parseArgs($_[1], 2);
+	
+	if ($subcmd eq "add") {
+		if (!$net || $net->getState() != Network::IN_GAME) {
+			error TF("You must be logged in the game to use this command 'st add'\n");
+			return;
+		}
+		
+		if ($arg ne "str" && $arg ne "agi" && $arg ne "vit" && $arg ne "int" && $arg ne "dex" && $arg ne "luk") {
+			error T("Syntax Error in function 'st add' (Add Status Point)\n" .
+				"Usage: st add <str | agi | vit | int | dex | luk>\n");
 
-	$msg .= T("You are sitting.\n") if $char->{sitting};
-	$msg .= ('-'x44) . "\n";
-	message $msg, "info";
+		} elsif ($char->{$arg} >= 99 && !$config{statsAdd_over_99}) {
+			error T("Error in function 'st add' (Add Status Point)\n" .
+				"You cannot add more stat points than 99\n");
+
+		} elsif ($char->{"points_$arg"} > $char->{'points_free'}) {
+			error TF("Error in function 'st add' (Add Status Point)\n" .
+				"Not enough status points to increase %s\n", $arg);
+
+		} else {
+			my $ID;
+			if ($arg eq "str") {
+				$ID = STATUS_STR;
+			} elsif ($arg eq "agi") {
+				$ID = STATUS_AGI;
+			} elsif ($arg eq "vit") {
+				$ID = STATUS_VIT;
+			} elsif ($arg eq "int") {
+				$ID = STATUS_INT;
+			} elsif ($arg eq "dex") {
+				$ID = STATUS_DEX;
+			} elsif ($arg eq "luk") {
+				$ID = STATUS_LUK;
+			}
+
+			$char->{$arg} += 1;
+			$messageSender->sendAddStatusPoint($ID);
+		}
+	} else {
+		my $guildName = $char->{guild} ? $char->{guild}{name} : T("None");
+		my $msg = center(T(" Char Stats "), 44, '-') ."\n".
+			swrite(TF(
+			"Str: \@<<+\@<< #\@< Atk:  \@<<+\@<< Def:  \@<<+\@<<\n" .
+			"Agi: \@<<+\@<< #\@< Matk: \@<<\@\@<< Mdef: \@<<+\@<<\n" .
+			"Vit: \@<<+\@<< #\@< Hit:  \@<<     Flee: \@<<+\@<<\n" .
+			"Int: \@<<+\@<< #\@< Critical: \@<< Aspd: \@<<\n" .
+			"Dex: \@<<+\@<< #\@< Status Points: \@<<<\n" .
+			"Luk: \@<<+\@<< #\@< Guild: \@<<<<<<<<<<<<<<<<<<<<<<<\n\n" .
+			"Hair color: \@<<<<<<<<<<<<<<<<<\n" .
+			"Walk speed: %.2f secs per block", $char->{walk_speed}),
+			[$char->{'str'}, $char->{'str_bonus'}, $char->{'points_str'}, $char->{'attack'}, $char->{'attack_bonus'}, $char->{'def'}, $char->{'def_bonus'},
+			$char->{'agi'}, $char->{'agi_bonus'}, $char->{'points_agi'}, $char->{'attack_magic_min'}, '~', $char->{'attack_magic_max'}, $char->{'def_magic'}, $char->{'def_magic_bonus'},
+			$char->{'vit'}, $char->{'vit_bonus'}, $char->{'points_vit'}, $char->{'hit'}, $char->{'flee'}, $char->{'flee_bonus'},
+			$char->{'int'}, $char->{'int_bonus'}, $char->{'points_int'}, $char->{'critical'}, $char->{'attack_speed'},
+			$char->{'dex'}, $char->{'dex_bonus'}, $char->{'points_dex'}, $char->{'points_free'},
+			$char->{'luk'}, $char->{'luk_bonus'}, $char->{'points_luk'}, $guildName,
+			"$haircolors{$char->{hair_color}} ($char->{hair_color})"]);
+
+		$msg .= T("You are sitting.\n") if $char->{sitting};
+		$msg .= ('-'x44) . "\n";
+		message $msg, "info";
+	}
 }
 
 sub cmdStatus {
@@ -4637,7 +4636,7 @@ sub cmdStorage {
 			cmdStorage_log();
 		} elsif ($switch eq 'desc') {
 			cmdStorage_desc($items);
-		} elsif ($switch eq 'add' || $switch eq 'addfromcart' || $switch eq 'get' || $switch eq 'gettocart' || $switch eq 'close') {
+		} elsif (($switch =~ /^(add|addfromcart|get|gettocart)$/ && $items) || $switch eq 'close') {
 			if ($char->storage->isReady()) {
 				if ($switch eq 'add') {
 					cmdStorage_add($items);
@@ -6477,7 +6476,7 @@ sub cmdRodex {
 			
 		} elsif (!exists $rodexWrite->{zeny} || !exists $rodexWrite->{body} || !exists $rodexWrite->{title} || !exists $rodexWrite->{target}) {
 			error T("Error in function 'rodex send' (Send finished rodex mail)\n" .
-				"You still have to set something to send the mail (title, body, zeny oy target)\n");
+				"You still have to set something to send the mail (title, body, zeny or target)\n");
 			return;
 		}
 		

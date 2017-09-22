@@ -70844,3 +70844,79 @@ It is worth 2 Forgery Token
 Weight: 1
 Character Bound
 #
+
+19977#
+Return this certificate and the following items to Frank, the owner of the Laurel and Hatty Co. in Morroc to receive 1 Evolved Drooping Cat!
+300 Black Hair
+2 Cat's Eyes
+1 Black Cat Doll
+1 Silk Ribbon
+1000 Zeny
+1 Evolved Drooping Cat Certificate
+Shadowy rumors say the following about this certificate:
+It is Tier 1
+It is worth 1 Forgery Token
+Weight: 1
+Character Bound
+#
+
+19978#
+Return this certificate and the following items to Frank, the owner of the Laurel and Hatty Co. in Morroc to receive 1 AFK Hat!
+300 Cloud Crumbs
+200 Fluff
+50 Strange Steel Pieces
+1 Black Cat Doll
+1000 Zeny
+1 AFK Hat Certificate
+Shadowy rumors say the following about this certificate:
+It is Tier 1
+It is worth 1 Forgery Token
+Weight: 1
+Character Bound
+#
+
+19979#
+Return this certificate and the following items to Frank, the owner of the Laurel and Hatty Co. in Morroc to receive 1 Pirate Dagger!
+300 Skel-Bones
+100 Red Gemstones
+10 Gold
+1 Dagger [3]
+1000 Zeny
+1 Pirate Dagger Certificate
+Shadowy rumors say the following about this certificate:
+It is Tier 2
+It is worth 1 Forgery Token
+Weight: 1
+Character Bound
+#
+
+19980#
+Return this certificate and the following items to Frank, the owner of the Laurel and Hatty Co. in Morroc to receive 1 Tiger Mask!
+200 Old White Cloths
+100 Black Bear Skins
+10 Striped Socks
+1 Denture from Dragon Mask
+1000 Zeny
+1 Tiger Mask Certificate
+Shadowy rumors say the following about this certificate:
+It is Tier 2
+It is worth 2 Forgery Tokens
+Weight: 1
+Character Bound
+#
+
+19981#
+Return this certificate and the following items to Frank, the owner of the Laurel and Hatty Co. in Morroc to receive 1 Taurus Diadem!
+5 Gold
+50 2carat Diamonds
+250 3carat Diamond
+1 Gemstone
+100 Emeralds
+1000 Zeny
+1 Taurus Diadem Certificate
+Shadowy rumors say the following about this certificate:
+It is Tier 3
+It is worth 2 Forgery Tokens
+Weight: 1
+Character Bound
+#

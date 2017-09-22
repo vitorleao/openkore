@@ -518,11 +518,8 @@ sub commandHandler {
 		
 	### parameter: enable
 	} elsif ($arg eq 'enable') {
-		if (!defined $params[0]) {
-			foreach my $automacro (@{$eventMacro->{Automacro_List}->getItems()}) {
-				message "[eventMacro] Enabled automacro '".$automacro->get_name."'.\n";
-				$eventMacro->enable_automacro($automacro);
-			}
+		if (!defined $params[0] || $params[0] eq 'all') {
+			$eventMacro->enable_all_automacros();
 			message "[eventMacro] All automacros were enabled.\n";
 			return;
 		}
@@ -539,11 +536,8 @@ sub commandHandler {
 
 	### parameter: disable
 	} elsif ($arg eq 'disable') {
-		if (!defined $params[0]) {
-			foreach my $automacro (@{$eventMacro->{Automacro_List}->getItems()}) {
-				message "[eventMacro] Disabled automacro '".$automacro->get_name."'.\n";
-				$eventMacro->disable_automacro($automacro);
-			}
+		if (!defined $params[0] || $params[0] eq 'all') {
+			$eventMacro->disable_all_automacros();
 			message "[eventMacro] All automacros were disabled.\n";
 			return;
 		}
@@ -553,7 +547,7 @@ sub commandHandler {
 				error "[eventMacro] Automacro '".$automacro_name."' not found.\n"
 			} else {
 				message "[eventMacro] Disabled automacro '".$automacro_name."'.\n";
-				$eventMacro->disabled_automacro($automacro);
+				$eventMacro->disable_automacro($automacro);
 			}
 		}
 		
@@ -586,12 +580,7 @@ sub commandHandler {
 		my $opt = {};
 		GetOptionsFromArray( \@params, $opt, 'repeat|r=i', 'override_ai', 'exclusive', 'macro_delay=f', 'orphan=s' );
 		
-		# TODO: Determine if this is reasonably efficient for macro sets which define a lot of variables. (A regex is slow.)
-		foreach my $variable_name ( keys %{ $eventMacro->{Scalar_Variable_List_Hash} } ) {
-			next if $variable_name !~ /^\.param\d+$/o;
-			$eventMacro->set_scalar_var( $variable_name, undef, 0 );
-		}
-		$eventMacro->set_scalar_var( ".param$_", $params[ $_ - 1 ], 0 ) foreach 1 .. @params;
+		$eventMacro->set_full_array( ".param", \@params );
 		
 		$eventMacro->{Macro_Runner} = new eventMacro::Runner(
 			$arg,

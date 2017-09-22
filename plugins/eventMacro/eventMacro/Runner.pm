@@ -41,6 +41,7 @@ sub new {
 	$self->{line_index} = 0;
 	
 	$self->{label} = {scanLabels($self->{lines_array})};
+	$self->{block} = scanBlocks($self->{lines_array});
 	
 	$self->{time} = time;
 	
@@ -417,16 +418,27 @@ sub scanLabels {
 			my ($label) = ${$script}[$line] =~ /^:(.*)/;
 			$labels{$label} = $line
 		}
-		if (${$script}[$line] =~ /^while\s+/) {
-			my ($label) = ${$script}[$line] =~ /\s+as\s+(.*)/;
-			$labels{$label} = $line
-		}
-		if (${$script}[$line] =~ /^end\s+/) {
-			my ($label) = ${$script}[$line] =~ /^end\s+(.*)/;
-			$labels{"end ".$label} = $line
-		}
 	}
 	return %labels
+}
+
+# Scans the script for blocks
+sub scanBlocks {
+	my $script = $_[0];
+	my $blocks = {};
+	my $block_starts = [];
+	
+	for (my $line = 0; $line < @{$script}; $line++) {
+		if ($script->[$line] =~ /^(if|switch|while)\s+\(.*\)\s+{$/) {
+			push @$block_starts, { type => $1, start => $line };
+		} elsif ($script->[$line] eq '}') {
+			my $block = pop @$block_starts;
+			$block->{end} = $line;
+			$blocks->{end_to_start}{$line} = $block;
+			$blocks->{start_to_end}{$block->{start}} = $block;
+		}
+	}
+	$blocks;
 }
 
 # Decides what to do when we get to the end of a macro script
@@ -601,29 +613,14 @@ sub define_next_valid_command {
 			debug "[eventMacro] New cleaned script '".$self->{current_line}."'.\n", "eventMacro", 3;
 			$check_need = 1;
 		}
-	
-		
-		######################################
-		# End of while 'block'
-		######################################
-		if ($self->{current_line} =~ /^end\s/) {
-			my ($label) = $self->{current_line} =~ /^end\s+(.*)/;
-			if (exists $self->{label}->{$label}) {
-				debug "[eventMacro] Script is the end of a while 'block' of label '$label'.\n", "eventMacro", 3;
-				debug "[eventMacro] Moving to the start of while 'block' of label '$label'.\n", "eventMacro", 3;
-				$self->line_index($self->{label}->{$label});
-			} else {
-				$self->error("Cannot find label '$label'");
-				return;
-			}
 		
 		######################################
 		# While statement: while (foo <= bar) as label
 		######################################
-		} elsif ($self->{current_line} =~ /^while\s/) {
-			my ($condition_text, $label) = $self->{current_line} =~ /^while\s+\(\s*(.*)\s*\)\s+as\s+(.*)/;
+		if ($self->{current_line} =~ /^while\s/) {
+			my ($condition_text) = $self->{current_line} =~ /^while\s+\(\s*(.*)\s*\)\s+{$/;
 			
-			debug "[eventMacro] Script is the start of a while 'block' of label '$label'.\n", "eventMacro", 3;
+			debug "[eventMacro] Script is the start of a while 'block'.\n", "eventMacro", 3;
 			
 			my $result = $self->parse_and_check_condition_text($condition_text);
 			return if (defined $self->error);
@@ -633,8 +630,8 @@ sub define_next_valid_command {
 				debug "[eventMacro] Entering true 'while' 'block'.\n", "eventMacro", 3;
 			} else {
 				debug "[eventMacro] Condition of 'while' is false.\n", "eventMacro", 3;
-				debug "[eventMacro] Moving to the end of 'while' loop of label '$label'.\n", "eventMacro", 3;
-				$self->line_index($self->{label}->{"end ".$label});
+				debug "[eventMacro] Moving to the end of 'while' loop.\n", "eventMacro", 3;
+				$self->line_index($self->{block}{start_to_end}{$self->line_index}{end});
 			}
 			$self->next_line;
 			
@@ -917,11 +914,16 @@ sub define_next_valid_command {
 			$self->next_line;
 		
 		######################################
-		# End block of "if" or "switch"
+		# End block of "if", "switch" or "while"
 		######################################
 		} elsif ($self->{current_line} eq '}') {
-			debug "[eventMacro] Script is the end of a not important block.\n", "eventMacro", 3;
-			$self->next_line;
+			if ($self->{block}{end_to_start}{$self->line_index}{type} eq 'while') {
+				debug "[eventMacro] Script is the end of a while 'block', moving to its start.\n", "eventMacro", 3;
+				$self->line_index($self->{block}{end_to_start}{$self->line_index}{start});
+			} else {
+				debug "[eventMacro] Script is the end of a not important block (if or switch).\n", "eventMacro", 3;
+				$self->next_line;
+			}
 		
 		######################################
 		# Label statement
@@ -1036,7 +1038,7 @@ sub next {
 			} elsif ($value =~ /^([+-]{2})$/i) {
 				my $change = (($1 eq '++') ? (1) : (-1));
 				
-				my $old_value = ($eventMacro->defined_var($var->{type}, $var->{real_name}, $complement) ? ($eventMacro->get_var($var->{type}, $var->{real_name})) : 0);
+				my $old_value = ($eventMacro->defined_var($var->{type}, $var->{real_name}, $complement) ? ($eventMacro->get_var($var->{type}, $var->{real_name}, $complement)) : 0);
 				$eventMacro->set_var(
 					$var->{type}, 
 					$var->{real_name}, 
@@ -1364,17 +1366,27 @@ sub parse_release_and_lock {
 		
 	if (!defined $parsed_automacro_name) {
 		$self->error("automacro name could not be defined");
-	} elsif (!defined $eventMacro->{Automacro_List}->getByName($parsed_automacro_name)) {
-		$self->error("could not find automacro with name '$parsed_automacro_name'");
 	}
 	return if (defined $self->error);
 	
-	my $automacro = $eventMacro->{Automacro_List}->getByName($parsed_automacro_name);
-	
-	if ($type == 1) {
-		$eventMacro->disable_automacro($automacro);
+	if ($parsed_automacro_name eq 'all') {
+		if ($type == 1) {
+			$eventMacro->disable_all_automacros();
+		} else {
+			$eventMacro->enable_all_automacros();
+		}
+		
 	} else {
-		$eventMacro->enable_automacro($automacro);
+		my $automacro = $eventMacro->{Automacro_List}->getByName($parsed_automacro_name);
+		if (!defined $automacro) {
+			$self->error("could not find automacro with name '$parsed_automacro_name'");
+		}
+		
+		if ($type == 1) {
+			$eventMacro->disable_automacro($automacro);
+		} else {
+			$eventMacro->enable_automacro($automacro);
+		}
 	}
 	
 	$self->timeout(0);
@@ -1393,13 +1405,12 @@ sub parse_call {
 
 	my $macro_name   = $call_command;
 	my $repeat_times = 1;
-	if ( $call_command =~ /\s/ ) {
+	if ( $call_command =~ /\s+/ ) {
 	    my @params;
 		( $macro_name, @params ) = parseArgs( $call_command );
 
-		# Update $.paramN with the values from the call.
-		$eventMacro->set_scalar_var( ".param$_", $params[ $_ - 1 ], 0 ) foreach 1 .. @params;
-		$eventMacro->set_scalar_var( ".param$_", undef,             0 ) foreach ( @params + 1 ) .. 100;
+		# Update $.param[n] with the values from the call.
+		$eventMacro->set_full_array( ".param", \@params);
 	}
 
 	my $parsed_macro_name = $self->parse_command($macro_name);

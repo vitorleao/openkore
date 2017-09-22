@@ -14,25 +14,18 @@ package Network::Receive::bRO;
 use strict;
 use Log qw(warning debug);
 use base 'Network::Receive::ServerType0';
-use Globals qw(%charSvrSet $messageSender $monstersList);
+use Globals qw(%charSvrSet $messageSender);
 use Translation qw(TF);
 
-# Sync_Ex algorithm developed by Fr3DBr
 sub new {
 	my ($class) = @_;
 	my $self = $class->SUPER::new(@_);
 	
 	my %packets = (
-		'0097' => ['private_message', 'v Z24 V Z*', [qw(len privMsgUser flag privMsg)]], # -1
-		'0A36' => ['monster_hp_info_tiny', 'a4 C', [qw(ID hp)]],
-		'09CB' => ['skill_used_no_damage', 'v v x2 a4 a4 C', [qw(skillID amount targetID sourceID success)]],
+		'0097' => ['private_message', 'v Z24 V Z*', [qw(len privMsgUser flag privMsg)]],
+		'09CB' => ['skill_used_no_damage', 'v V a4 a4 C', [qw(skillID amount targetID sourceID success)]],
 	);
-	# Sync Ex Reply Array 
-	$self->{sync_ex_reply} = {
-		'0367', '0939', '085A', '087A', '085B', '0956', '085C', '0940', '085D', '0938', '085E', '0952', '085F', '0819', '0363', '088A', '0861', '088B', '0862', '088C', '0863', '088D', '0864', '088E', '0865', '088F', '0866', '0890', '0867', '0891', '0868', '0361', '0869', '0893', '086A', '0894', '086B', '0895', '086C', '0896', '086D', '0897', '086E', '0898', '086F', '0899', '0870', '089A', '0871', '089B', '0872', '089C', '0873', '089D', '0874', '089E', '0875', '089F', '0802', '08A0', '0877', '08A1', '0878', '08A2', '0879', '08A3', '0885', '08A4', '087B', '08A5', '087C', '08A6', '023B', '08A7', '087E', '08A8', '087F', '08A9', '0880', '08AA', '0881', '08AB', '0882', '08AC', '0883', '08AD', '0917', '0941', '0918', '0942', '0919', '07E4', '091A', '0944', '091B', '0945', '091C', '0946', '091D', '0947', '091E', '0948', '091F', '0949', '0920', '094A', '0921', '094B', '0922', '094C', '0923', '094D', '0924', '094E', '02C4', '094F', '0926', '0950', '0281', '0951', '0928', '0889', '0929', '0953', '092A', '0954', '092B', '0955', '0365', '07EC', '092D', '0957', '092E', '0958', '092F', '0959', '0930', '095A', '0931', '095B', '0932', '095C', '0933', '095D', '0934', '095E', '0935', '095F', '0936', '022D', '0436', '0961', '0888', '0962', '0884', '0963', '093A', '0964', '093B', '0965', '0364', '0966', '093D', '0967', '093E', '0202', '093F', '0969'
-	};
 	
-	foreach my $key (keys %{$self->{sync_ex_reply}}) { $packets{$key} = ['sync_request_ex']; }
 	foreach my $switch (keys %packets) { $self->{packet_list}{$switch} = $packets{$switch}; }
 	
 	my %handlers = qw(
@@ -56,17 +49,6 @@ sub sync_received_characters {
 	# This behavior was observed in April 12th 2017, when Odin and Asgard were merged into Valhalla
 	for (1..$args->{sync_Count}) {
 		$messageSender->sendToServer($messageSender->reconstruct({switch => 'sync_received_characters'}));
-	}
-}
-
-# 0A36
-sub monster_hp_info_tiny {
-	my ($self, $args) = @_;
-	my $monster = $monstersList->getByID($args->{ID});
-	if ($monster) {
-		$monster->{hp} = $args->{hp};
-		
-		debug TF("Monster %s has about %d%% hp left\n", $monster->name, $monster->{hp} * 4), "parseMsg_damage"; # FIXME: Probably inaccurate
 	}
 }
 

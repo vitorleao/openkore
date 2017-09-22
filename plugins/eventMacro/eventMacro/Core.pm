@@ -56,6 +56,12 @@ sub new {
 	$self->create_automacro_list($parse_result->{automacros});
 
 	$self->define_automacro_check_state;
+	
+	$self->{AI_state_change_Hook_Handle} = Plugins::addHook( 'AI_state_change',  sub { my $state = $_[1]->{new}; $self->adapt_to_AI_state($state); }, undef );
+	
+	$self->{Currently_AI_state_Adapted_Automacros} = undef;
+	
+	$self->adapt_to_AI_state(AI::state);
 
 	$self->{AI_start_Macros_Running_Hook_Handle} = undef;
 	$self->{AI_start_Automacros_Check_Hook_Handle} = undef;
@@ -77,11 +83,35 @@ sub new {
 	return $self;
 }
 
+sub adapt_to_AI_state {
+	my ($self, $state) = @_;
+	
+	$self->{Currently_AI_state_Adapted_Automacros} = undef;
+	
+	foreach my $automacro (@{$self->{Automacro_List}->getItems()}) {
+		my $automacro_index = $automacro->get_index;
+		
+		if ($self->{automacros_index_to_AI_check_state}{$automacro_index}{$state} == 1) {
+			
+			$self->{Currently_AI_state_Adapted_Automacros}{$automacro_index} = 1;
+			if (!$automacro->running_status && $automacro->can_be_added_to_queue) {
+				$self->add_to_triggered_prioritized_automacros_index_list($automacro);
+			}
+			
+		} else {
+			if ($automacro->running_status) {
+				$self->remove_from_triggered_prioritized_automacros_index_list($automacro);
+			}
+		}
+	}
+}
+
 sub unload {
 	my ($self) = @_;
 	$self->clear_queue();
 	$self->clean_hooks();
 	Plugins::delHook($self->{AI_start_Automacros_Check_Hook_Handle}) if ($self->{AI_start_Automacros_Check_Hook_Handle});
+	Plugins::delHook($self->{AI_state_change_Hook_Handle});
 }
 
 sub clean_hooks {
@@ -165,22 +195,28 @@ sub create_automacro_list {
 		}
 		
 		PARAMETER: foreach my $parameter (@{$value->{'parameters'}}) {
-		
 			###Check Duplicate Parameter
 			if (exists $currentParameters{$parameter->{'key'}}) {
 				warning "[eventMacro] Ignoring automacro '$name' (parameter ".$parameter->{'key'}." duplicate)\n";
 				next AUTOMACRO;
 			}
-			###Parameter: call
-			if ($parameter->{'key'} eq "call" && !$self->{Macro_List}->getByName($parameter->{'value'})) {
-				warning "[eventMacro] Ignoring automacro '$name' (call '".$parameter->{'value'}."' is not a valid macro name)\n";
-				next AUTOMACRO;
-			
+			###Parameter: call with or without param
+			if ($parameter->{'key'} eq "call" && $parameter->{'value'} =~ /(\S+)\s+(.*)?/) {
+				my ($macro_name, $params) = ($1 , $2); 
+				
+				if (!$self->{Macro_List}->getByName($macro_name) ) {
+					warning "[eventMacro] Ignoring automacro '$name' (call '".$macro_name."' is not a valid macro name)\n";
+					next AUTOMACRO;
+				} else {
+					unless (defined $params) {
+					$parameter->{'value'} = $macro_name;
+					}
+					$currentParameters{$parameter->{'key'}} = $parameter->{'value'};
+				}
 			###Parameter: delay
 			} elsif ($parameter->{'key'} eq "delay" && $parameter->{'value'} !~ /\d+/) {
 				error "[eventMacro] Ignoring automacro '$name' (delay parameter should be a number)\n";
 				next AUTOMACRO;
-			
 			###Parameter: run-once
 			} elsif ($parameter->{'key'} eq "run-once" && $parameter->{'value'} !~ /[01]/) {
 				error "[eventMacro] Ignoring automacro '$name' (run-once parameter should be '0' or '1')\n";
@@ -680,7 +716,7 @@ sub check_all_conditions {
 			debug "[eventMacro] Checking condition of index '".$condition->get_index."' in automacro '".$automacro->get_name."'\n", "eventMacro", 2;
 			$automacro->check_state_type_condition($condition->get_index, 'recheck')
 		}
-		if ($automacro->can_be_added_to_queue) {
+		if (exists $self->{Currently_AI_state_Adapted_Automacros}{$automacro->get_index} && $automacro->can_be_added_to_queue) {
 			$self->add_to_triggered_prioritized_automacros_index_list($automacro);
 		}
 	}
@@ -755,28 +791,34 @@ sub get_scalar_var {
 	if ( substr( $variable_name, 0, 1 ) eq '.' ) {
 
 		# Time-related variables.
-		if    ( $variable_name eq '.time' )     { return time; }
-		elsif ( $variable_name eq '.datetime' ) { return scalar localtime; }
-		elsif ( $variable_name eq '.second' )   { return ( localtime() )[0]; }
-		elsif ( $variable_name eq '.minute' )   { return ( localtime() )[1]; }
-		elsif ( $variable_name eq '.hour' )     { return ( localtime() )[2]; }
-
+		if    ( $variable_name eq '.time' )       { return time; }
+		elsif ( $variable_name eq '.datetime' )   { return scalar localtime; }
+		elsif ( $variable_name eq '.second' )     { return ( localtime() )[0]; }
+		elsif ( $variable_name eq '.minute' )     { return ( localtime() )[1]; }
+		elsif ( $variable_name eq '.hour' )       { return ( localtime() )[2]; }
+		elsif ( $variable_name eq '.dayofmonth' ) { return ( localtime() )[3]; }
+		elsif ( $variable_name eq '.dayofweek' )  { 
+			my @wday = qw/Monday Tuesday Wednesday Thursday Friday Saturday Sunday+/;
+			return $wday[ (localtime())[6] - 1 ];
+		}
+		
 		# Field-related variables.
-		elsif ( $variable_name eq '.map' ) { return $field ? $field->baseName : ''; }
+		elsif ( $variable_name eq '.map' )    { return $field ? $field->baseName : ''; }
 		elsif ( $variable_name eq '.incity' ) { return $field && $field->isCity ? 1 : 0; }
 
 		# Character-related variables.
-		elsif ( $variable_name eq '.job' ) { return $char && $jobs_lut{ $char->{jobID} } || ''; }
-		elsif ( $variable_name eq '.pos' ) { return $char ? sprintf( '%d %d', @{ calcPosition( $char ) }{ 'x', 'y' } ) : ''; }
-		elsif ( $variable_name eq '.name' )      { return $char && $char->{name}       || 0; }
-		elsif ( $variable_name eq '.hp' )        { return $char && $char->{hp}         || 0; }
-		elsif ( $variable_name eq '.sp' )        { return $char && $char->{sp}         || 0; }
-		elsif ( $variable_name eq '.lvl' )       { return $char && $char->{lv}         || 0; }
-		elsif ( $variable_name eq '.joblvl' )    { return $char && $char->{lv_job}     || 0; }
-		elsif ( $variable_name eq '.spirits' )   { return $char && $char->{spirits}    || 0; }
-		elsif ( $variable_name eq '.zeny' )      { return $char && $char->{zeny}       || 0; }
-		elsif ( $variable_name eq '.weight' )    { return $char && $char->{weight}     || 0; }
-		elsif ( $variable_name eq '.maxweight' ) { return $char && $char->{weight_max} || 0; }
+		elsif ( $variable_name eq '.job' )          { return $char && $jobs_lut{ $char->{jobID} } || ''; }
+		elsif ( $variable_name eq '.pos' )          { return $char ? sprintf( '%d %d', @{ calcPosition( $char ) }{ 'x', 'y' } ) : ''; }
+		elsif ( $variable_name eq '.name' )         { return $char && $char->{name}       || 0; }
+		elsif ( $variable_name eq '.hp' )           { return $char && $char->{hp}         || 0; }
+		elsif ( $variable_name eq '.sp' )           { return $char && $char->{sp}         || 0; }
+		elsif ( $variable_name eq '.lvl' )          { return $char && $char->{lv}         || 0; }
+		elsif ( $variable_name eq '.joblvl' )       { return $char && $char->{lv_job}     || 0; }
+		elsif ( $variable_name eq '.spirits' )      { return $char && $char->{spirits}    || 0; }
+		elsif ( $variable_name eq '.zeny' )         { return $char && $char->{zeny}       || 0; }
+		elsif ( $variable_name eq '.weight' )       { return $char && $char->{weight}     || 0; }
+		elsif ( $variable_name eq '.weightpercent') {return $char && int $char->{weight} * 100 / int $char->{weight_max} || 0; }
+		elsif ( $variable_name eq '.maxweight' )    { return $char && $char->{weight_max} || 0; }
 		elsif ( $variable_name eq '.status' ) {
 			return '' if !$char;
 			return join ',', sort( ( $char->{muted} ? 'muted' : () ), ( $char->{dead} ? 'dead' : () ), map { $statusName{$_} || $_ } keys %{ $char->{statuses} } );
@@ -787,10 +829,11 @@ sub get_scalar_var {
 		}
 
 		# Cart-related variables.
-		elsif ( $variable_name eq '.cartweight' )    { return $char && $char->cart->isReady ? $char->cart->{weight}     : 0; }
-		elsif ( $variable_name eq '.cartmaxweight' ) { return $char && $char->cart->isReady ? $char->cart->{weight_max} : 0; }
-		elsif ( $variable_name eq '.cartitems' )     { return $char && $char->cart->isReady ? $char->cart->items        : 0; }
-		elsif ( $variable_name eq '.cartmaxitems' )  { return $char && $char->cart->isReady ? $char->cart->items_max    : 0; }
+		elsif ( $variable_name eq '.cartweight' )       { return $char && $char->cart->isReady ? $char->cart->{weight}     : 0; }
+		elsif ( $variable_name eq '.cartweightpercent') { return $char && $char->cart->isReady ? int $char->cart->{weight} * 100 / int $char->cart->{weight_max} : 0;}
+		elsif ( $variable_name eq '.cartmaxweight' )    { return $char && $char->cart->isReady ? $char->cart->{weight_max} : 0; }
+		elsif ( $variable_name eq '.cartitems' )        { return $char && $char->cart->isReady ? $char->cart->items        : 0; }
+		elsif ( $variable_name eq '.cartmaxitems' )     { return $char && $char->cart->isReady ? $char->cart->items_max    : 0; }
 
 		# Storage-related variables.
 		elsif ( $variable_name eq '.storageopen' )     { return $char && $char->storage->isReady              ? 1                         : 0; }
@@ -1288,7 +1331,7 @@ sub manage_event_callbacks {
 					$self->remove_from_triggered_prioritized_automacros_index_list($automacro);
 				
 				#remove from running queue
-				} elsif ($result && $automacro->can_be_added_to_queue) {
+				} elsif ($result && exists $self->{Currently_AI_state_Adapted_Automacros}{$automacro_index} && $automacro->can_be_added_to_queue) {
 					$self->add_to_triggered_prioritized_automacros_index_list($automacro);
 					
 				}
@@ -1301,7 +1344,7 @@ sub manage_event_callbacks {
 				debug "[eventMacro] Variable value will be updated in condition of event type in automacro '".$automacro->get_name()."'.\n", "eventMacro", 3;
 				$automacro->check_event_type_condition($callback_type, $callback_name, $callback_args);
 				
-			} elsif (($self->get_automacro_checking_status == CHECKING_AUTOMACROS || $self->get_automacro_checking_status == CHECKING_FORCED_BY_USER) && $automacro->can_be_run_from_event && $self->{automacros_index_to_AI_check_state}{$automacro_index}{$AI} == 1) {
+			} elsif (exists $self->{Currently_AI_state_Adapted_Automacros}{$automacro_index} && ($self->get_automacro_checking_status == CHECKING_AUTOMACROS || $self->get_automacro_checking_status == CHECKING_FORCED_BY_USER) && $automacro->can_be_run_from_event) {
 				debug "[eventMacro] Condition of event type will be checked in automacro '".$automacro->get_name()."'.\n", "eventMacro", 3;
 				
 				if ($automacro->check_event_type_condition($callback_type, $callback_name, $callback_args)) {
@@ -1396,17 +1439,28 @@ sub AI_start_checker {
 	
 	foreach my $array_member (@{$self->{triggered_prioritized_automacros_index_list}}) {
 		
-		next unless ($self->{automacros_index_to_AI_check_state}{$array_member->{index}}{$state} == 1);
-		
 		my $automacro = $self->{Automacro_List}->get($array_member->{index});
 		
-		next unless $automacro->is_timed_out;
-		
+		next unless $automacro->is_timed_out;	
 		message "[eventMacro] Conditions met for automacro '".$automacro->get_name()."', calling macro '".$automacro->get_parameter('call')."'\n", "system";
 		
 		$self->call_macro($automacro);
 		
 		return;
+	}
+}
+
+sub disable_all_automacros {
+	my ($self) = @_;
+	foreach my $automacro (@{$self->{Automacro_List}->getItems()}) {
+		$self->disable_automacro($automacro);
+	}
+}
+
+sub enable_all_automacros {
+	my ($self) = @_;
+	foreach my $automacro (@{$self->{Automacro_List}->getItems()}) {
+		$self->enable_automacro($automacro);
 	}
 }
 
@@ -1428,9 +1482,19 @@ sub enable_automacro {
 
 sub call_macro {
 	my ($self, $automacro) = @_;
-	
 	if (defined $self->{Macro_Runner}) {
 		$self->clear_queue();
+	}
+	
+	if ($automacro->get_parameter('call') =~ /\s+/) {
+		
+		#here the macro name and the params are together in get_parameter, time to split
+		my ($macro_name, @params) = parseArgs($automacro->get_parameter('call'));
+
+		# Update $.param[0] with the values from the call.
+		$eventMacro->set_full_array( ".param", \@params);
+
+		$automacro->set_call('call', $macro_name);
 	}
 	
 	$automacro->set_timeout_time(time);

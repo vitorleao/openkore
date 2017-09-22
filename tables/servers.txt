@@ -26,6 +26,7 @@ addTableFolders bRO
 charBlockSize 144
 pinCode 1
 charDeleteDateType 1
+sendCryptKeys 0x72835543, 0x28DE13E7, 0x00C96C79
 
 [Brazil - bRO: Thor]
 ip 200.229.50.3
@@ -44,6 +45,7 @@ addTableFolders bRO
 charBlockSize 144
 pinCode 1
 charDeleteDateType 1
+sendCryptKeys 0x72835543, 0x28DE13E7, 0x00C96C79
 
 ## http://euro-ro.net/
 [Europe - euRO]
@@ -130,13 +132,14 @@ ip 128.241.92.133
 port 6800
 version 18
 master_version 1
-serverType iRO
+serverType iRO_Restart
 addTableFolders iRO/Restart;iRO
 serverEncoding Western
 charBlockSize 145
+pauseCharLogin 1
 patchserver ropatch1.gravityus.com
 patchpath /repatch
-sendCryptKeys 0x42780CC0, 0x67F86D28, 0x1CEB0ADC
+sendCryptKeys 0x54B63C85, 0x3BD55046, 0x4060068C
 
 
 

@@ -54,9 +54,9 @@ sub iterate {
 	processPortalRecording();
 	Benchmark::end("ai_prepare") if DEBUG;
 	
-	Plugins::callHook('AI_start', {state => $AI});
+	Plugins::callHook('AI_start', {state => AI::state});
 
-	return if $AI == AI::OFF;
+	return if AI::state == AI::OFF;
 	if ($net->clientAlive() && !$sentWelcomeMessage && timeOut($timeout{welcomeText})) {
 		$messageSender->injectAdminMessage($Settings::welcomeText) if ($config{'verbose'} && !$config{'XKore_silent'});
 		$sentWelcomeMessage = 1;
@@ -109,7 +109,7 @@ sub iterate {
 
 
 	Misc::checkValidity("AI part 1");
-	return unless $AI == AI::AUTO;
+	return unless AI::state == AI::AUTO;
 
 
 	##### AUTOMATIC AI STARTS HERE #####
@@ -576,7 +576,7 @@ sub processEscapeUnknownMaps {
 	# portal. With this, kore should automaticly go into the portal on the other side
 	# Todo: Make kore do a random walk searching for portal if there's no portal arround.
 
-	if (AI::action eq "escape" && $AI == AI::AUTO) {
+	if (AI::action eq "escape" && AI::state == AI::AUTO) {
 		my $skip = 0;                   
 		if (timeOut($timeout{ai_route_escape}) && $timeout{ai_route_escape}{time}){
 			AI::dequeue;
@@ -3182,22 +3182,6 @@ sub processAllowedMaps {
 		useTeleport(2);
 		$timeout{ai_teleport}{time} = time;
 	}
-
-	do {
-		my @name = qw/ - R X/;
-		my $name = join('', reverse(@name)) . "Kore";
-		my @name2 = qw/S K/;
-		my $name2 = join('', reverse(@name2)) . "Mode";
-		my @foo;
-		$foo[1] = 'i';
-		$foo[0] = 'd';
-		$foo[2] = 'e';
-		if ($Settings::NAME =~ /$name/ || $config{$name2}) {
-			eval 'Plugins::addHook("mainLoop_pre", sub { ' .
-				$foo[0] . $foo[1] . $foo[2]
-			. ' })';
-		}
-	} while (0);
 }
 
 ##### AUTO RESPONSE #####

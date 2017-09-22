@@ -70,6 +70,8 @@ sub new {
 		'0108' => ['party_chat', 'x2 Z*', [qw(message)]],
 		'0113' => ['skill_use', 'v2 a4', [qw(lv skillID targetID)]],
 		'0116' => ['skill_use_location', 'v4', [qw(lv skillID x y)]],
+		'0126' => ['cart_add', 'a2 V', [qw(ID amount)]],
+		'0127' => ['cart_get', 'a2 V', [qw(ID amount)]],
 		'0134' => ['buy_bulk_vender', 'x2 a4 a*', [qw(venderID itemInfo)]],
 		'0143' => ['npc_talk_number', 'a4 V', [qw(ID value)]],
 		'0146' => ['npc_talk_cancel', 'a4', [qw(ID)]],
@@ -77,6 +79,7 @@ sub new {
 		'014D' => ['guild_check'], # len 2
 		'014F' => ['guild_info_request', 'V', [qw(type)]],
 		'0151' => ['guild_emblem_request', 'a4', [qw(guildID)]],
+		'0178' => ['identify', 'a2', [qw(ID)]],
 		'017E' => ['guild_chat', 'x2 Z*', [qw(message)]],
 		'0187' => ['ban_check', 'a4', [qw(accountID)]],
 		'018A' => ['quit_request', 'v', [qw(type)]],
@@ -116,6 +119,7 @@ sub new {
 		'0437' => ['character_move','a3', [qw(coords)]],
 		'0443' => ['skill_select', 'V v', [qw(why skillID)]],
 		'07D7' => ['party_setting', 'V C2', [qw(exp itemPickup itemDivision)]],
+		'07E4' => ['item_list_res', 'v V2 a*', [qw(len type action itemInfo)]],
 		'0801' => ['buy_bulk_vender', 'x2 a4 a4 a*', [qw(venderID venderCID itemInfo)]], #Selling store
 		'0802' => ['booking_register', 'v8', [qw(level MapID job0 job1 job2 job3 job4 job5)]],
 		'0804' => ['booking_search', 'v3 V s', [qw(level MapID job LastIndex ResultCount)]],
@@ -153,7 +157,7 @@ sub new {
 		'0A06' => ['rodex_remove_item', 'a2 v', [qw(ID amount)]],   # 6 -- RodexRemoveItem
 		'0A08' => ['rodex_open_write_mail', 'Z24', [qw(name)]],   # 26 -- RodexOpenWriteMail
 		'0A13' => ['rodex_checkname', 'Z24', [qw(name)]],   # 26 -- RodexCheckName
-		'0A6E' => ['rodex_send_mail', 'v Z24 Z24 V2 v v V', [qw(len receiver sender zeny1 zeny2 title_len text_len char_id)]],   # -1 -- RodexSendMail
+		'0A6E' => ['rodex_send_mail', 'v Z24 Z24 V2 v v V a* a*', [qw(len receiver sender zeny1 zeny2 title_len body_len char_id title body)]],   # -1 -- RodexSendMail
 	);
 	$self->{packet_list}{$_} = $packets{$_} for keys %packets;
 	
@@ -168,6 +172,27 @@ sub new {
 	# $self->{packet_lut}{$_} = $handlers{$_} for keys %handlers;
 	
 	return $self;
+}
+
+sub shuffle {
+	my ( $self ) = @_;
+
+	my %shuffle;
+	my $load_shuffle = Settings::addTableFile( 'shuffle.txt', loader => [ \&FileParsers::parseDataFile2, \%shuffle ], mustExist => 0 );
+	Settings::loadByHandle( $load_shuffle );
+	Settings::removeFile( $load_shuffle );
+
+	# Build the list of changes. Be careful to handle swaps correctly.
+	my $new = {};
+	foreach ( sort keys %shuffle ) {
+		# We can only patch packets we know about.
+		next if !$self->{packet_list}->{$_};
+		$new->{ $shuffle{$_} } = $self->{packet_list}->{$_};
+	}
+
+    # Patch!
+	$self->{packet_list}->{$_} = $new->{$_} foreach keys %$new;
+	$self->{packet_lut}->{ $new->{$_}->[0] } = $_ foreach keys %$new;
 }
 
 sub rodex_delete_mail {
@@ -244,31 +269,22 @@ sub rodex_checkname {
 
 sub rodex_send_mail {
 	my ($self) = @_;
-	
-	my $title_len = length($rodexWrite->{title});
-	my $text_len = length($rodexWrite->{body});
-	
-	my $header_pack = 'v Z24 Z24 V2 v2 V';
-	my $header_base_len = ((length pack $header_pack) + 2);
-	my $len = $header_base_len + $text_len + $title_len;
-	
-	my $base_pack = $self->reconstruct({
+
+	my $title = stringToBytes($rodexWrite->{title});
+	my $body = stringToBytes($rodexWrite->{body});
+	my $pack = $self->reconstruct({
 		switch => 'rodex_send_mail',
-		len => $len,
 		receiver => $rodexWrite->{target}{name},
 		sender => $char->{name},
 		zeny1 => $rodexWrite->{zeny},
 		zeny2 => 0,
-		title_len => $title_len,
-		text_len => $text_len,
-		char_id => $rodexWrite->{target}{char_id}
+		title_len => length $title,
+		body_len => length $body,
+		char_id => $rodexWrite->{target}{char_id},
+		title => $title,
+		body => $body,
 	});
-	
-	my $title = stringToBytes($rodexWrite->{title});
-	my $body = stringToBytes($rodexWrite->{body});
-	
-	my $pack = $base_pack . $title . $body;
-	
+
 	$self->sendToServer($pack);
 }
 
@@ -409,16 +425,20 @@ sub sendCardMergeRequest {
 
 sub sendCartAdd {
 	my ($self, $ID, $amount) = @_;
-	my $msg = pack("C*", 0x26, 0x01) . pack("a2", $ID) . pack("V*", $amount);
-	$self->sendToServer($msg);
-	debug sprintf("Sent Cart Add: %s x $amount\n", unpack('v', $ID)), "sendPacket", 2;
+	$self->sendToServer($self->reconstruct({
+		switch => 'cart_add',
+		ID => $ID,
+		amount => $amount,
+	}));
 }
 
 sub sendCartGet {
 	my ($self, $ID, $amount) = @_;
-	my $msg = pack("C*", 0x27, 0x01) . pack("a2", $ID) . pack("V*", $amount);
-	$self->sendToServer($msg);
-	debug sprintf("Sent Cart Get: %s x $amount\n", unpack('v', $ID)), "sendPacket", 2;
+	$self->sendToServer($self->reconstruct({
+		switch => 'cart_get',
+		ID => $ID,
+		amount => $amount,
+	}));
 }
 
 sub sendCharCreate {
@@ -778,11 +798,12 @@ sub sendHomunculusName {
 }
 
 sub sendIdentify {
-	my $self = shift;
-	my $ID = shift;
-	my $msg = pack("C*", 0x78, 0x01) . pack("a2", $ID);
-	$self->sendToServer($msg);
-	debug sprintf("Sent Identify: %s\n", unpack('v', $ID)), "sendPacket", 2;
+	my ($self, $ID) = @_;
+	$self->sendToServer($self->reconstruct({
+		switch => 'identify',
+		ID => $ID,
+	}));
+	debug "Sent Identify: ".unpack('v',$ID)."\n", "sendPacket", 2;
 }
 
 sub sendIgnore {

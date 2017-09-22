@@ -581,6 +581,7 @@ sub new {
 		'0A27' => ['hp_sp_changed', 'vV', [qw(type amount)]],
 		'0A30' => ['actor_info', 'a4 Z24 Z24 Z24 Z24 x4', [qw(ID name partyName guildName guildTitle)]],
 		'0A34' => ['senbei_amount', 'V', [qw(amount)]], #new senbei system (new cash currency)
+		'0A36' => ['monster_hp_info_tiny', 'a4 C', [qw(ID hp)]],
 		'0A3B' => ['hat_effect', 'v a4 C a*', [qw(len ID flag effect)]], # -1
 		'C350' => ['senbei_vender_items_list'], #new senbei vender, need research
 		'09F0' => ['rodex_mail_list', 'v C3', [qw(len type amount isEnd)]],   # -1
@@ -664,6 +665,16 @@ sub new {
 			},
 		},
 	};
+
+	my %sync_ex;
+	my $load_sync = Settings::addTableFile( 'sync.txt', loader => [ \&FileParsers::parseDataFile2, \%sync_ex ], mustExist => 0 );
+	Settings::loadByHandle( $load_sync );
+	Settings::removeFile( $load_sync );
+
+	foreach ( keys %sync_ex ) {
+		$self->{packet_list}{$_}   = ['sync_request_ex'];
+		$self->{sync_ex_reply}{$_} = $sync_ex{$_};
+	}
 
 	return $self;
 }
@@ -1152,21 +1163,21 @@ sub map_loaded {
 		ai_clientSuspend(0, 10);
 		main::initMapChangeVars();
 	} else {
+		$messageSender->sendMapLoaded();
 
-		$messageSender->sendSync(1) if ($masterServer->{serverType} eq 'bRO'); # tested at bRO 2013.11.26 - revok
+		$messageSender->sendSync(1);
 
 		$messageSender->sendGuildMasterMemberCheck();
 
 		# Replies 01B6 (Guild Info) and 014C (Guild Ally/Enemy List)
 		$messageSender->sendGuildRequestInfo(0);
 
-		$messageSender->sendGuildRequestInfo(0) if ($masterServer->{serverType} eq 'bRO'); # tested at bRO 2013.11.26, this is sent two times and i don't know why - revok
+		$messageSender->sendGuildRequestInfo(0);
 
 		# Replies 0166 (Guild Member Titles List) and 0154 (Guild Members List)
 		$messageSender->sendGuildRequestInfo(1);
 		message(T("You are now in the game\n"), "connection");
 		Plugins::callHook('in_game');
-		$messageSender->sendMapLoaded();
 		$timeout{'ai'}{'time'} = time;
 		our $quest_generation++;
 	}
@@ -1932,7 +1943,7 @@ sub inventory_item_added {
 			$ai_v{'npc_talk'}{'time'} = time;
 		}
 
-		if ($AI == AI::AUTO) {
+		if (AI::state == AI::AUTO) {
 			# Auto-drop item
 			if (pickupitems(lc($item->{name})) == -1 && !AI::inQueue('storageAuto', 'buyAuto')) {
 				$messageSender->sendDrop($item->{ID}, $amount);
@@ -2756,7 +2767,7 @@ sub private_message {
 		Msg => $privMsg
 	});
 
-	if ($config{dcOnPM} && $AI == AI::AUTO) {
+	if ($config{dcOnPM} && AI::state == AI::AUTO) {
 		message T("Auto disconnecting on PM!\n");
 		chatLog("k", T("*** You were PM'd, auto disconnect! ***\n"));
 		$messageSender->sendQuit();
@@ -2846,6 +2857,7 @@ sub received_characters {
 		$chars[$slot]{zeny} = $zeny;
 		$chars[$slot]{exp_job} = $jobExp;
 		$chars[$slot]{lv_job} = $jobLevel;
+		$chars[$slot]{lastJobLvl} = $jobLevel;#This is for counting exp
 		$chars[$slot]{hp} = $hp;
 		$chars[$slot]{hp_max} = $maxHp;
 		$chars[$slot]{sp} = $sp;
@@ -2853,6 +2865,7 @@ sub received_characters {
 		$chars[$slot]{jobID} = $jobId;
 		$chars[$slot]{hair_style} = $hairstyle;
 		$chars[$slot]{lv} = $level;
+		$chars[$slot]{lastBaseLvl} = $level;#This is for counting exp
 		$chars[$slot]{headgear}{low} = $headLow;
 		$chars[$slot]{headgear}{top} = $headTop;
 		$chars[$slot]{headgear}{mid} = $headMid;
@@ -2865,11 +2878,13 @@ sub received_characters {
 		$chars[$slot]{int} = $int;
 		$chars[$slot]{dex} = $dex;
 		$chars[$slot]{luk} = $luk;
-		$chars[$slot]{sex} = $accountSex2;
+		$chars[$slot]{sex} = ($masterServer->{charBlockSize} == 145 && $masterServer->{serverType} =~ /^iRO/) && (unpack( 'C', substr($args->{RAW_MSG}, $i + $blockSize -1)) =~ /^0|1$/)? unpack( 'C', substr($args->{RAW_MSG}, $i + $blockSize -1)) : $accountSex2;
 
 		setCharDeleteDate($slot, $deleteDate) if $deleteDate;
 		$chars[$slot]{nameID} = unpack("V", $chars[$slot]{ID});
 		$chars[$slot]{name} = bytesToString($chars[$slot]{name});
+		$chars[$slot]{map_name} = $mapname;
+		$chars[$slot]{map_name} =~ s/\.gat//g;
 	}
 
 	# FIXME better support for multiple received_characters packets
@@ -2892,15 +2907,19 @@ sub received_characters {
 	# it doesn't work...
 	# 30 Dec 2005: it didn't work before because it wasn't sending the accountiD -> fixed (kaliwanagan)
 	$messageSender->sendBanCheck($accountID) if (!$net->clientAlive && $masterServer->{serverType} == 2);
-	if (!$masterServer->{pinCode}) {
-		if (charSelectScreen(1) == 1) {
-			$firstLoginMap = 1;
-			$startingzeny = $chars[$config{'char'}]{'zeny'} unless defined $startingzeny;
-			$sentWelcomeMessage = 1;
-		}
-	} else {
+	
+	if ($masterServer->{pinCode}) {
 		message T("Waiting for PIN code request\n"), "connection";
 		$timeout{'charlogin'}{'time'} = time;
+		
+	} elsif ($masterServer->{pauseCharLogin}) {
+		if (!defined $timeout{'char_login_pause'}{'timeout'}) {
+			$timeout{'char_login_pause'}{'timeout'} = 2;
+		}
+		$timeout{'char_login_pause'}{'time'} = time;
+		
+	} else {
+		CharacterLogin();
 	}
 }
 
@@ -3340,7 +3359,7 @@ sub skill_cast {
 	my $monster = $monstersList->getByID($sourceID);
 	my $control;
 	$control = mon_control($monster->name,$monster->{nameID}) if ($monster);
-	if ($AI == AI::AUTO && $control->{skillcancel_auto}) {
+	if (AI::state == AI::AUTO && $control->{skillcancel_auto}) {
 		if ($targetID eq $accountID || $dist > 0 || (AI::action eq "attack" && AI::args->{ID} ne $sourceID)) {
 			message TF("Monster Skill - switch Target to : %s (%d)\n", $monster->name, $monster->{binID});
 			$char->sendAttackStop;
@@ -3633,7 +3652,7 @@ sub skill_used_no_damage {
 		$timeout{ai_teleport_delay}{time} = time;
 	}
 
-	if ($AI == AI::AUTO && $config{'autoResponseOnHeal'}) {
+	if (AI::state == AI::AUTO && $config{'autoResponseOnHeal'}) {
 		# Handle auto-response on heal
 		my $player = $playersList->getByID($args->{sourceID});
 		if ($player && ($args->{skillID} == 28 || $args->{skillID} == 29 || $args->{skillID} == 34)) {
@@ -3831,7 +3850,7 @@ our %stat_info_handlers = (
 		$actor->{exp} = $value;
 
 		return unless $actor->isa('Actor::You');
-
+=pod
 		unless ($bExpSwitch) {
 			$bExpSwitch = 1;
 		} else {
@@ -3846,6 +3865,19 @@ our %stat_info_handlers = (
 				$bExpSwitch = 2;
 			}
 		}
+=cut
+
+		if ($actor->{lastBaseLvl} eq $actor->{lv}) {
+			$monsterBaseExp = $actor->{exp} - $actor->{exp_last};
+		} else {
+			$monsterBaseExp = $actor->{exp_max_last2} - $actor->{exp_last} + $actor->{exp};
+			$actor->{lastBaseLvl} = $actor->{lv};
+			$actor->{exp_max_last2} = $actor->{exp_max};
+		}
+
+		if ($monsterBaseExp > 0) {
+			$totalBaseExp += $monsterBaseExp;
+		}
 
 		# no VAR_JOBEXP next - no message?
 	},
@@ -3858,7 +3890,7 @@ our %stat_info_handlers = (
 		# TODO: message for all actors
 		return unless $actor->isa('Actor::You');
 		# TODO: exp report (statistics) - no globals, move to plugin
-
+=pod
 		if ($jExpSwitch == 0) {
 			$jExpSwitch = 1;
 		} else {
@@ -3873,6 +3905,20 @@ our %stat_info_handlers = (
 				$jExpSwitch = 2;
 			}
 		}
+=cut
+
+		if ($actor->{lastJobLvl} eq $actor->{lv_job}) {
+			$monsterJobExp = $actor->{exp_job} - $actor->{exp_job_last};
+		} else {
+			$monsterJobExp = $actor->{exp_job_max_last2} - $actor->{exp_job_last} + $actor->{exp_job};
+			$actor->{lastJobLvl} = $actor->{lv_job};
+			$actor->{exp_job_max_last2} = $actor->{exp_job_max};
+		}
+
+		if ($monsterJobExp > 0) {
+			$totalJobExp += $monsterJobExp;
+		}
+
 		my $basePercent = $char->{exp_max} ?
 			($monsterBaseExp / $char->{exp_max} * 100) :
 			0;
@@ -3987,6 +4033,7 @@ our %stat_info_handlers = (
 	#VAR_SEX
 	VAR_MAXEXP, sub {
 		$_[0]{exp_max_last} = $_[0]{exp_max};
+		$_[0]{exp_max_last2} = $_[0]{exp_max} if !$_[0]{exp_max_last2};
 		$_[0]{exp_max} = $_[1];
 
 		if (!$net->clientAlive() && $initSync && $masterServer->{serverType} == 2) {
@@ -3996,6 +4043,7 @@ our %stat_info_handlers = (
 	},
 	VAR_MAXJOBEXP, sub {
 		$_[0]{exp_job_max_last} = $_[0]{exp_job_max};
+		$_[0]{exp_job_max_last2} = $_[0]{exp_job_max} if !$_[0]{exp_job_max_last2};
 		$_[0]{exp_job_max} = $_[1];
 		#message TF("BaseExp: %s | JobExp: %s\n", $monsterBaseExp, $monsterJobExp), "info", 2 if ($monsterBaseExp);
 	},
@@ -6147,6 +6195,16 @@ sub rodex_delete {
 	message "You have deleted the mail of ID ".$args->{mailID1}.".\n";
 	
 	delete $rodexList->{mails}{$args->{mailID1}};
+}
+
+sub monster_hp_info_tiny {
+	my ($self, $args) = @_;
+	my $monster = $monstersList->getByID($args->{ID});
+	if ($monster) {
+		$monster->{hp} = $args->{hp} * 5;
+		
+		debug TF("Monster %s has about %d%% hp left\n", $monster->name, $monster->{hp}), "parseMsg_damage";
+	}
 }
 
 1;

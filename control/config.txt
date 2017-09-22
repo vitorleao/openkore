@@ -235,7 +235,7 @@ sitTensionRelax 0
 statsAddAuto 0
 statsAddAuto_list
 statsAddAuto_dontUseBonus 0
-statsAdd_over_99 0
+statsAdd_over_99 1
 
 skillsAddAuto 0
 skillsAddAuto_list
@@ -306,17 +306,17 @@ showAllDamage 0
 manualURL http://wiki.openkore.com/index.php?title=Manual
 forumURL http://forums.openkore.com
 
-logChat 0
+logChat 1
 logPrivateChat 1
 logPartyChat 1
 logGuildChat 1
 logSystemChat 1
 logEmoticons
-logConsole 0
+logConsole 1
 logAppendUsername 1
 logAppendServer 0
 monsterLog 0
-logDead 0
+logDead 1
 
 chatTitleOversize 0
 shopTitleOversize 0

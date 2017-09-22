@@ -206,6 +206,9 @@ our @EXPORT = (
 	qw/cancelNpcBuySell
 	completeNpcSell
 	completeNpcBuy/,
+	
+	# Char login
+	qw/CharacterLogin/,
 	);
 
 
@@ -1182,12 +1185,14 @@ sub charSelectScreen {
 			}
 		}
 		
-		push @charNames, TF("Slot %d: %s (%s, level %d/%d)%s",
+		push @charNames, TF("Slot %d: %s (%s, %s, level %d/%d, %s)%s",
 			$num,
 			$chars[$num]{name},
 			$jobs_lut{$chars[$num]{'jobID'}},
+			$sex_lut{$chars[$num]{sex}},
 			$chars[$num]{lv},
 			$chars[$num]{lv_job},
+			$chars[$num]{map_name},
 			$messageDeleteDate);
 		push @charNameIndices, $num;
 	}
@@ -1385,7 +1390,7 @@ sub chatLog_clear {
 sub checkAllowedMap {
 	my $map = shift;
 
-	return unless $AI == AI::AUTO;
+	return unless AI::state == AI::AUTO;
 	return unless $config{allowedMaps};
 	return if existsInList($config{allowedMaps}, $map);
 	return if $config{allowedMaps_reaction} == 0;
@@ -2787,7 +2792,7 @@ sub updateDamageTables {
 				);
 			$monster->{target} = $targetID;
 
-			if ($AI == 2) {
+			if (AI::state == 2) {
 				my $teleport = 0;
 				if (mon_control($monster->{name},$monster->{nameID})->{teleport_auto} == 2 && $damage){
 					message TF("Teleporting due to attack from %s\n",
@@ -2907,7 +2912,7 @@ sub updateDamageTables {
 			$monster->{target} = $targetID;
 			OpenKoreMod::updateDamageTables($monster) if (defined &OpenKoreMod::updateDamageTables);
 
-			if ($AI == AI::AUTO && ($accountID eq $targetID or $char->{slaves} && $char->{slaves}{$targetID})) {
+			if (AI::state == AI::AUTO && ($accountID eq $targetID or $char->{slaves} && $char->{slaves}{$targetID})) {
 				# object under our control
 				my $teleport = 0;
 				if (mon_control($monster->{name},$monster->{nameID})->{teleport_auto} == 2 && $damage){
@@ -3924,11 +3929,11 @@ sub checkSelfCondition {
 	# *_manualAI 1 = manual only
 	# *_manualAI 2 = auto or manual
 	if ($config{$prefix . "_manualAI"} == 0 || !(defined $config{$prefix . "_manualAI"})) {
-		return 0 unless $AI == AI::AUTO;
+		return 0 unless AI::state == AI::AUTO;
 	} elsif ($config{$prefix . "_manualAI"} == 1){
-		return 0 unless $AI == AI::MANUAL;
+		return 0 unless AI::state == AI::MANUAL;
 	} else {
-		return 0 if $AI == AI::OFF;
+		return 0 if AI::state == AI::OFF;
 	}
 
 	if ($config{$prefix . "_hp"}) {
@@ -4068,6 +4073,7 @@ sub checkSelfCondition {
 	if ($config{$prefix . "_inLockOnly"} > 0) { return 0 unless ($field->baseName eq $config{lockMap}); }
 	if ($config{$prefix . "_notWhileSitting"} > 0) { return 0 if ($char->{sitting}); }
 	if ($config{$prefix . "_notInTown"} > 0) { return 0 if ($field->isCity); }
+	if ($config{$prefix . "_inTown"} > 0) { return 0 unless ($field->isCity); }
     if (defined $config{$prefix . "_monstersCount"}) {
 		my $nowMonsters = $monstersList->size();
 			if ($nowMonsters > 0 && $config{$prefix . "_notMonsters"}) {
@@ -4609,6 +4615,14 @@ sub completeNpcBuy {
 	if ($messageSender->can('sendSellBuyComplete')) {
 		$messageSender->sendSellBuyComplete;
 		$messageSender->sendSellBuyComplete;
+	}
+}
+
+sub CharacterLogin {
+	if (charSelectScreen(1) == 1) {
+		$firstLoginMap = 1;
+		$startingzeny = $chars[$config{'char'}]{'zeny'} unless defined $startingzeny;
+		$sentWelcomeMessage = 1;
 	}
 }
 
