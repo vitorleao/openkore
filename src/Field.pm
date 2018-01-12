@@ -403,13 +403,19 @@ sub loadDistanceMap {
 # Throws IOException if a read error occured while reading the field file
 # and/or the distance map file.
 sub loadByName {
-	my ($self, $name, $loadDistanceMap) = @_;
+	my ($self, $name, $loadDistanceMap, $alias) = @_;
 	my $baseName;
 	($baseName, $self->{instanceID}) = $self->nameToBaseName($name);
 	$self->{baseName} = $baseName;
-	my $file = $self->sourceName . ".fld";
+	my $file;
 
-	if ($Settings::fields_folder) {
+	if ($mapAlias_lut{"$name"}) {
+		$file = $mapAlias_lut{"$name"} . ".fld";
+	} else {
+		$file = $self->sourceName . ".fld";
+	}
+
+	if ($Settings::fields_folder) {		
 		$file = File::Spec->catfile($Settings::fields_folder, $file);
 	}
 	if (! -f $file) {
