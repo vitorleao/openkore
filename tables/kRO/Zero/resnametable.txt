@@ -1,9 +1,9 @@
 // 최종갱신 오전 10:24 2017-10-13 [제로서버]
 
 //2017 프론테라 지하수로 MD
-1@sewb2.gnd#Zero/1@sewb2.gnd#
-1@sewb2.gat#Zero/1@sewb2.gat#
-1@sewb2.rsw#Zero/1@sewb2.rsw#
+1@sewb2.gnd#Zero\1@sewb2.gnd#
+1@sewb2.gat#Zero\1@sewb2.gat#
+1@sewb2.rsw#Zero\1@sewb2.rsw#
 유저인터페이스\map\1@sewb2.bmp#유저인터페이스\map\1@sewb2.bmp#
 
 //2017 라자냐 국수축제
@@ -92,28 +92,28 @@ rwc_arena12.rsw#rwc_arena04.rsw#
 유저인터페이스\map\1@slw.bmp#유저인터페이스\map\1@slw.bmp#
 
 //201509 인트로, 크리투라학원 수정
-int_land.gnd#Zero/int_land.gnd#
-int_land.gat#Zero/int_land.gat#
-int_land.rsw#Zero/int_land.rsw#
+int_land.gnd#Zero\int_land.gnd#
+int_land.gat#Zero\int_land.gat#
+int_land.rsw#Zero\int_land.rsw#
 
-int_land01.gnd#Zero/int_land.gnd#
-int_land01.gat#Zero/int_land.gat#
-int_land01.rsw#Zero/int_land.rsw#
+int_land01.gnd#Zero\int_land.gnd#
+int_land01.gat#Zero\int_land.gat#
+int_land01.rsw#Zero\int_land.rsw#
 유저인터페이스\map\int_land01.bmp#유저인터페이스\map\int_land.bmp#
 
-int_land02.gnd#Zero/int_land.gnd#
-int_land02.gat#Zero/int_land.gat#
-int_land02.rsw#Zero/int_land.rsw#
+int_land02.gnd#Zero\int_land.gnd#
+int_land02.gat#Zero\int_land.gat#
+int_land02.rsw#Zero\int_land.rsw#
 유저인터페이스\map\int_land02.bmp#유저인터페이스\map\int_land.bmp#
 
-int_land03.gnd#Zero/int_land.gnd#
-int_land03.gat#Zero/int_land.gat#
-int_land03.rsw#Zero/int_land.rsw#
+int_land03.gnd#Zero\int_land.gnd#
+int_land03.gat#Zero\int_land.gat#
+int_land03.rsw#Zero\int_land.rsw#
 유저인터페이스\map\int_land03.bmp#유저인터페이스\map\int_land.bmp#
 
-int_land04.gnd#Zero/int_land.gnd#
-int_land04.gat#Zero/int_land.gat#
-int_land04.rsw#Zero/int_land.rsw#
+int_land04.gnd#Zero\int_land.gnd#
+int_land04.gat#Zero\int_land.gat#
+int_land04.rsw#Zero\int_land.rsw#
 유저인터페이스\map\int_land04.bmp#유저인터페이스\map\int_land.bmp#
 
 
@@ -363,10 +363,10 @@ guild_vs01.rsw#guild_vs01.rsw#
 
 
 //북미요청 복사맵 
-prt_evt.gnd#Zero/prontera.gnd#
-prt_evt.gat#Zero/prontera.gat#
-prt_evt.rsw#Zero/prontera.rsw#
-유저인터페이스\map\prt_evt.bmp#유저인터페이스\map\Zero/prontera.bmp#
+prt_evt.gnd#Zero\prontera.gnd#
+prt_evt.gat#Zero\prontera.gat#
+prt_evt.rsw#Zero\prontera.rsw#
+유저인터페이스\map\prt_evt.bmp#유저인터페이스\map\Zero\prontera.bmp#
 
 prt_castle_evt.gnd#prt_castle.gnd#
 prt_castle_evt.gat#prt_castle.gat#
@@ -645,24 +645,24 @@ teg_dun02.rsw#gld_dun02.rsw#
 
 //izlude복사맵
 
-prt_fild08d.gnd#Zero/prt_fild08.gnd#
-prt_fild08d.gat#Zero/prt_fild08.gat#
-prt_fild08d.rsw#Zero/prt_fild08.rsw#
+prt_fild08d.gnd#Zero\prt_fild08.gnd#
+prt_fild08d.gat#Zero\prt_fild08.gat#
+prt_fild08d.rsw#Zero\prt_fild08.rsw#
 유저인터페이스\map\prt_fild08d.bmp#유저인터페이스\map\prt_fild08.bmp#
 
-prt_fild08c.gnd#Zero/prt_fild08.gnd#
-prt_fild08c.gat#Zero/prt_fild08.gat#
-prt_fild08c.rsw#Zero/prt_fild08.rsw#
+prt_fild08c.gnd#Zero\prt_fild08.gnd#
+prt_fild08c.gat#Zero\prt_fild08.gat#
+prt_fild08c.rsw#Zero\prt_fild08.rsw#
 유저인터페이스\map\prt_fild08c.bmp#유저인터페이스\map\prt_fild08.bmp#
 
-prt_fild08b.gnd#Zero/prt_fild08.gnd#
-prt_fild08b.gat#Zero/prt_fild08.gat#
-prt_fild08b.rsw#Zero/prt_fild08.rsw#
+prt_fild08b.gnd#Zero\prt_fild08.gnd#
+prt_fild08b.gat#Zero\prt_fild08.gat#
+prt_fild08b.rsw#Zero\prt_fild08.rsw#
 유저인터페이스\map\prt_fild08b.bmp#유저인터페이스\map\prt_fild08.bmp#
 
-prt_fild08a.gnd#Zero/prt_fild08.gnd#
-prt_fild08a.gat#Zero/prt_fild08.gat#
-prt_fild08a.rsw#Zero/prt_fild08.rsw#
+prt_fild08a.gnd#Zero\prt_fild08.gnd#
+prt_fild08a.gat#Zero\prt_fild08.gat#
+prt_fild08a.rsw#Zero\prt_fild08.rsw#
 유저인터페이스\map\prt_fild08a.bmp#유저인터페이스\map\prt_fild08.bmp#
                  
 iz_ac02_d.gnd#iz_ac02.gnd#
@@ -705,25 +705,25 @@ iz_ac01_a.gat#iz_ac01.gat#
 iz_ac01_a.rsw#iz_ac01.rsw#
 유저인터페이스\map\iz_ac01_a.bmp#유저인터페이스\map\iz_ac01.bmp#
 
-izlude_d.gnd#Zero/izlude.gnd#
-izlude_d.gat#Zero/izlude.gat#
-izlude_d.rsw#Zero/izlude.rsw#
-유저인터페이스\map\izlude_d.bmp#유저인터페이스\map\Zero/izlude.bmp#
+izlude_d.gnd#Zero\izlude.gnd#
+izlude_d.gat#Zero\izlude.gat#
+izlude_d.rsw#Zero\izlude.rsw#
+유저인터페이스\map\izlude_d.bmp#유저인터페이스\map\Zero\izlude.bmp#
 
-izlude_c.gnd#Zero/izlude.gnd#
-izlude_c.gat#Zero/izlude.gat#
-izlude_c.rsw#Zero/izlude.rsw#
-유저인터페이스\map\izlude_c.bmp#유저인터페이스\map\Zero/izlude.bmp#
+izlude_c.gnd#Zero\izlude.gnd#
+izlude_c.gat#Zero\izlude.gat#
+izlude_c.rsw#Zero\izlude.rsw#
+유저인터페이스\map\izlude_c.bmp#유저인터페이스\map\Zero\izlude.bmp#
 
-izlude_b.gnd#Zero/izlude.gnd#
-izlude_b.gat#Zero/izlude.gat#
-izlude_b.rsw#Zero/izlude.rsw#
-유저인터페이스\map\izlude_b.bmp#유저인터페이스\map\Zero/izlude.bmp#
+izlude_b.gnd#Zero\izlude.gnd#
+izlude_b.gat#Zero\izlude.gat#
+izlude_b.rsw#Zero\izlude.rsw#
+유저인터페이스\map\izlude_b.bmp#유저인터페이스\map\Zero\izlude.bmp#
 
-izlude_a.gnd#Zero/izlude.gnd#
-izlude_a.gat#Zero/izlude.gat#
-izlude_a.rsw#Zero/izlude.rsw#
-유저인터페이스\map\izlude_a.bmp#유저인터페이스\map\Zero/izlude.bmp#
+izlude_a.gnd#Zero\izlude.gnd#
+izlude_a.gat#Zero\izlude.gat#
+izlude_a.rsw#Zero\izlude.rsw#
+유저인터페이스\map\izlude_a.bmp#유저인터페이스\map\Zero\izlude.bmp#
 
 
 //초보자수련장
@@ -1274,22 +1274,22 @@ ordeal_3-3.rsw#ordeal_a03.rsw#
 ordeal_1-4.rsw#ordeal_a04.rsw#
 ordeal_2-4.rsw#ordeal_a04.rsw#
 ordeal_3-4.rsw#ordeal_a04.rsw#
-pvp_y_1-1.gat#Zero/prontera.gat#
-pvp_y_2-1.gat#Zero/prontera.gat#
-pvp_y_3-1.gat#Zero/prontera.gat#
-pvp_y_4-1.gat#Zero/prontera.gat#
-pvp_y_5-1.gat#Zero/prontera.gat#
-pvp_y_6-1.gat#Zero/prontera.gat#
-pvp_y_7-1.gat#Zero/prontera.gat#
-pvp_y_8-1.gat#Zero/prontera.gat#
-pvp_y_1-2.gat#Zero/izlude.gat#
-pvp_y_2-2.gat#Zero/izlude.gat#
-pvp_y_3-2.gat#Zero/izlude.gat#
-pvp_y_4-2.gat#Zero/izlude.gat#
-pvp_y_5-2.gat#Zero/izlude.gat#
-pvp_y_6-2.gat#Zero/izlude.gat#
-pvp_y_7-2.gat#Zero/izlude.gat#
-pvp_y_8-2.gat#Zero/izlude.gat#
+pvp_y_1-1.gat#Zero\prontera.gat#
+pvp_y_2-1.gat#Zero\prontera.gat#
+pvp_y_3-1.gat#Zero\prontera.gat#
+pvp_y_4-1.gat#Zero\prontera.gat#
+pvp_y_5-1.gat#Zero\prontera.gat#
+pvp_y_6-1.gat#Zero\prontera.gat#
+pvp_y_7-1.gat#Zero\prontera.gat#
+pvp_y_8-1.gat#Zero\prontera.gat#
+pvp_y_1-2.gat#Zero\izlude.gat#
+pvp_y_2-2.gat#Zero\izlude.gat#
+pvp_y_3-2.gat#Zero\izlude.gat#
+pvp_y_4-2.gat#Zero\izlude.gat#
+pvp_y_5-2.gat#Zero\izlude.gat#
+pvp_y_6-2.gat#Zero\izlude.gat#
+pvp_y_7-2.gat#Zero\izlude.gat#
+pvp_y_8-2.gat#Zero\izlude.gat#
 pvp_y_1-3.gat#payon.gat#
 pvp_y_2-3.gat#payon.gat#
 pvp_y_3-3.gat#payon.gat#
@@ -1298,31 +1298,31 @@ pvp_y_5-3.gat#payon.gat#
 pvp_y_6-3.gat#payon.gat#
 pvp_y_7-3.gat#payon.gat#
 pvp_y_8-3.gat#payon.gat#
-pvp_y_1-4.gat#Zero/alberta.gat#
-pvp_y_2-4.gat#Zero/alberta.gat#
-pvp_y_3-4.gat#Zero/alberta.gat#
-pvp_y_4-4.gat#Zero/alberta.gat#
-pvp_y_5-4.gat#Zero/alberta.gat#
-pvp_y_6-4.gat#Zero/alberta.gat#
-pvp_y_7-4.gat#Zero/alberta.gat#
-pvp_y_8-4.gat#Zero/alberta.gat#
+pvp_y_1-4.gat#Zero\alberta.gat#
+pvp_y_2-4.gat#Zero\alberta.gat#
+pvp_y_3-4.gat#Zero\alberta.gat#
+pvp_y_4-4.gat#Zero\alberta.gat#
+pvp_y_5-4.gat#Zero\alberta.gat#
+pvp_y_6-4.gat#Zero\alberta.gat#
+pvp_y_7-4.gat#Zero\alberta.gat#
+pvp_y_8-4.gat#Zero\alberta.gat#
 
-pvp_y_1-1.gnd#Zero/prontera.gnd#
-pvp_y_2-1.gnd#Zero/prontera.gnd#
-pvp_y_3-1.gnd#Zero/prontera.gnd#
-pvp_y_4-1.gnd#Zero/prontera.gnd#
-pvp_y_5-1.gnd#Zero/prontera.gnd#
-pvp_y_6-1.gnd#Zero/prontera.gnd#
-pvp_y_7-1.gnd#Zero/prontera.gnd#
-pvp_y_8-1.gnd#Zero/prontera.gnd#
-pvp_y_1-2.gnd#Zero/izlude.gnd#
-pvp_y_2-2.gnd#Zero/izlude.gnd#
-pvp_y_3-2.gnd#Zero/izlude.gnd#
-pvp_y_4-2.gnd#Zero/izlude.gnd#
-pvp_y_5-2.gnd#Zero/izlude.gnd#
-pvp_y_6-2.gnd#Zero/izlude.gnd#
-pvp_y_7-2.gnd#Zero/izlude.gnd#
-pvp_y_8-2.gnd#Zero/izlude.gnd#
+pvp_y_1-1.gnd#Zero\prontera.gnd#
+pvp_y_2-1.gnd#Zero\prontera.gnd#
+pvp_y_3-1.gnd#Zero\prontera.gnd#
+pvp_y_4-1.gnd#Zero\prontera.gnd#
+pvp_y_5-1.gnd#Zero\prontera.gnd#
+pvp_y_6-1.gnd#Zero\prontera.gnd#
+pvp_y_7-1.gnd#Zero\prontera.gnd#
+pvp_y_8-1.gnd#Zero\prontera.gnd#
+pvp_y_1-2.gnd#Zero\izlude.gnd#
+pvp_y_2-2.gnd#Zero\izlude.gnd#
+pvp_y_3-2.gnd#Zero\izlude.gnd#
+pvp_y_4-2.gnd#Zero\izlude.gnd#
+pvp_y_5-2.gnd#Zero\izlude.gnd#
+pvp_y_6-2.gnd#Zero\izlude.gnd#
+pvp_y_7-2.gnd#Zero\izlude.gnd#
+pvp_y_8-2.gnd#Zero\izlude.gnd#
 pvp_y_1-3.gnd#payon.gnd#
 pvp_y_2-3.gnd#payon.gnd#
 pvp_y_3-3.gnd#payon.gnd#
@@ -1331,14 +1331,14 @@ pvp_y_5-3.gnd#payon.gnd#
 pvp_y_6-3.gnd#payon.gnd#
 pvp_y_7-3.gnd#payon.gnd#
 pvp_y_8-3.gnd#payon.gnd#
-pvp_y_1-4.gnd#Zero/alberta.gnd#
-pvp_y_2-4.gnd#Zero/alberta.gnd#
-pvp_y_3-4.gnd#Zero/alberta.gnd#
-pvp_y_4-4.gnd#Zero/alberta.gnd#
-pvp_y_5-4.gnd#Zero/alberta.gnd#
-pvp_y_6-4.gnd#Zero/alberta.gnd#
-pvp_y_7-4.gnd#Zero/alberta.gnd#
-pvp_y_8-4.gnd#Zero/alberta.gnd#
+pvp_y_1-4.gnd#Zero\alberta.gnd#
+pvp_y_2-4.gnd#Zero\alberta.gnd#
+pvp_y_3-4.gnd#Zero\alberta.gnd#
+pvp_y_4-4.gnd#Zero\alberta.gnd#
+pvp_y_5-4.gnd#Zero\alberta.gnd#
+pvp_y_6-4.gnd#Zero\alberta.gnd#
+pvp_y_7-4.gnd#Zero\alberta.gnd#
+pvp_y_8-4.gnd#Zero\alberta.gnd#
 pvp_y_1-5.gnd#morocc.gnd#
 pvp_y_2-5.gnd#morocc.gnd#
 pvp_y_3-5.gnd#morocc.gnd#
@@ -1347,22 +1347,22 @@ pvp_y_5-5.gnd#morocc.gnd#
 pvp_y_6-5.gnd#morocc.gnd#
 pvp_y_7-5.gnd#morocc.gnd#
 pvp_y_8-5.gnd#morocc.gnd#
-pvp_y_1-1.rsw#Zero/prontera.rsw#
-pvp_y_2-1.rsw#Zero/prontera.rsw#
-pvp_y_3-1.rsw#Zero/prontera.rsw#
-pvp_y_4-1.rsw#Zero/prontera.rsw#
-pvp_y_5-1.rsw#Zero/prontera.rsw#
-pvp_y_6-1.rsw#Zero/prontera.rsw#
-pvp_y_7-1.rsw#Zero/prontera.rsw#
-pvp_y_8-1.rsw#Zero/prontera.rsw#
-pvp_y_1-2.rsw#Zero/izlude.rsw#
-pvp_y_2-2.rsw#Zero/izlude.rsw#
-pvp_y_3-2.rsw#Zero/izlude.rsw#
-pvp_y_4-2.rsw#Zero/izlude.rsw#
-pvp_y_5-2.rsw#Zero/izlude.rsw#
-pvp_y_6-2.rsw#Zero/izlude.rsw#
-pvp_y_7-2.rsw#Zero/izlude.rsw#
-pvp_y_8-2.rsw#Zero/izlude.rsw#
+pvp_y_1-1.rsw#Zero\prontera.rsw#
+pvp_y_2-1.rsw#Zero\prontera.rsw#
+pvp_y_3-1.rsw#Zero\prontera.rsw#
+pvp_y_4-1.rsw#Zero\prontera.rsw#
+pvp_y_5-1.rsw#Zero\prontera.rsw#
+pvp_y_6-1.rsw#Zero\prontera.rsw#
+pvp_y_7-1.rsw#Zero\prontera.rsw#
+pvp_y_8-1.rsw#Zero\prontera.rsw#
+pvp_y_1-2.rsw#Zero\izlude.rsw#
+pvp_y_2-2.rsw#Zero\izlude.rsw#
+pvp_y_3-2.rsw#Zero\izlude.rsw#
+pvp_y_4-2.rsw#Zero\izlude.rsw#
+pvp_y_5-2.rsw#Zero\izlude.rsw#
+pvp_y_6-2.rsw#Zero\izlude.rsw#
+pvp_y_7-2.rsw#Zero\izlude.rsw#
+pvp_y_8-2.rsw#Zero\izlude.rsw#
 pvp_y_1-3.rsw#payon.rsw#
 pvp_y_2-3.rsw#payon.rsw#
 pvp_y_3-3.rsw#payon.rsw#
@@ -1371,14 +1371,14 @@ pvp_y_5-3.rsw#payon.rsw#
 pvp_y_6-3.rsw#payon.rsw#
 pvp_y_7-3.rsw#payon.rsw#
 pvp_y_8-3.rsw#payon.rsw#
-pvp_y_1-4.rsw#Zero/alberta.rsw#
-pvp_y_2-4.rsw#Zero/alberta.rsw#
-pvp_y_3-4.rsw#Zero/alberta.rsw#
-pvp_y_4-4.rsw#Zero/alberta.rsw#
-pvp_y_5-4.rsw#Zero/alberta.rsw#
-pvp_y_6-4.rsw#Zero/alberta.rsw#
-pvp_y_7-4.rsw#Zero/alberta.rsw#
-pvp_y_8-4.rsw#Zero/alberta.rsw#
+pvp_y_1-4.rsw#Zero\alberta.rsw#
+pvp_y_2-4.rsw#Zero\alberta.rsw#
+pvp_y_3-4.rsw#Zero\alberta.rsw#
+pvp_y_4-4.rsw#Zero\alberta.rsw#
+pvp_y_5-4.rsw#Zero\alberta.rsw#
+pvp_y_6-4.rsw#Zero\alberta.rsw#
+pvp_y_7-4.rsw#Zero\alberta.rsw#
+pvp_y_8-4.rsw#Zero\alberta.rsw#
 pvp_y_1-5.rsw#morocc.rsw#
 pvp_y_2-5.rsw#morocc.rsw#
 pvp_y_3-5.rsw#morocc.rsw#
@@ -1584,22 +1584,22 @@ nguild_gef.gnd#gefg_cas01.gnd#
 유저인터페이스\map\pvp_n_6-5.bmp#유저인터페이스\map\job_knight.bmp#
 유저인터페이스\map\pvp_n_7-5.bmp#유저인터페이스\map\job_knight.bmp#
 유저인터페이스\map\pvp_n_8-5.bmp#유저인터페이스\map\job_knight.bmp#
-유저인터페이스\map\pvp_y_1-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_2-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_3-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_4-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_5-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_6-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_7-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_8-1.bmp#유저인터페이스\map\Zero/prontera.bmp#
-유저인터페이스\map\pvp_y_1-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
-유저인터페이스\map\pvp_y_2-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
-유저인터페이스\map\pvp_y_3-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
-유저인터페이스\map\pvp_y_4-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
-유저인터페이스\map\pvp_y_5-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
-유저인터페이스\map\pvp_y_6-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
-유저인터페이스\map\pvp_y_7-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
-유저인터페이스\map\pvp_y_8-2.bmp#유저인터페이스\map\Zero/izlude.bmp#
+유저인터페이스\map\pvp_y_1-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_2-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_3-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_4-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_5-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_6-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_7-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_8-1.bmp#유저인터페이스\map\Zero\prontera.bmp#
+유저인터페이스\map\pvp_y_1-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
+유저인터페이스\map\pvp_y_2-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
+유저인터페이스\map\pvp_y_3-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
+유저인터페이스\map\pvp_y_4-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
+유저인터페이스\map\pvp_y_5-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
+유저인터페이스\map\pvp_y_6-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
+유저인터페이스\map\pvp_y_7-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
+유저인터페이스\map\pvp_y_8-2.bmp#유저인터페이스\map\Zero\izlude.bmp#
 유저인터페이스\map\pvp_y_1-3.bmp#유저인터페이스\map\payon.bmp#
 유저인터페이스\map\pvp_y_2-3.bmp#유저인터페이스\map\payon.bmp#
 유저인터페이스\map\pvp_y_3-3.bmp#유저인터페이스\map\payon.bmp#
@@ -1608,14 +1608,14 @@ nguild_gef.gnd#gefg_cas01.gnd#
 유저인터페이스\map\pvp_y_6-3.bmp#유저인터페이스\map\payon.bmp#
 유저인터페이스\map\pvp_y_7-3.bmp#유저인터페이스\map\payon.bmp#
 유저인터페이스\map\pvp_y_8-3.bmp#유저인터페이스\map\payon.bmp#
-유저인터페이스\map\pvp_y_1-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
-유저인터페이스\map\pvp_y_2-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
-유저인터페이스\map\pvp_y_3-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
-유저인터페이스\map\pvp_y_4-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
-유저인터페이스\map\pvp_y_5-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
-유저인터페이스\map\pvp_y_6-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
-유저인터페이스\map\pvp_y_7-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
-유저인터페이스\map\pvp_y_8-4.bmp#유저인터페이스\map\Zero/alberta.bmp#
+유저인터페이스\map\pvp_y_1-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
+유저인터페이스\map\pvp_y_2-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
+유저인터페이스\map\pvp_y_3-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
+유저인터페이스\map\pvp_y_4-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
+유저인터페이스\map\pvp_y_5-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
+유저인터페이스\map\pvp_y_6-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
+유저인터페이스\map\pvp_y_7-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
+유저인터페이스\map\pvp_y_8-4.bmp#유저인터페이스\map\Zero\alberta.bmp#
 
 유저인터페이스\map\new_1-1.bmp#유저인터페이스\map\new_zone01.bmp#
 유저인터페이스\map\new_2-1.bmp#유저인터페이스\map\new_zone01.bmp#
@@ -1883,22 +1883,22 @@ bossnia_04.rsw#gef_dun03.rsw#
 유저인터페이스\map\bossnia_04.bmp#유저인터페이스\map\gef_dun03.bmp#
 
 #kRO Zero new cities
-prontera.gnd#Zero/prontera.gnd#
-prontera.gat#Zero/prontera.gat#
-prontera.rsw#Zero/prontera.rsw#
+prontera.gnd#Zero\prontera.gnd#
+prontera.gat#Zero\prontera.gat#
+prontera.rsw#Zero\prontera.rsw#
 
-izlude.gnd#Zero/izlude.gnd#
-izlude.gat#Zero/izlude.gat#
-izlude.rsw#Zero/izlude.rsw#
+izlude.gnd#Zero\izlude.gnd#
+izlude.gat#Zero\izlude.gat#
+izlude.rsw#Zero\izlude.rsw#
 
-geffen.gnd#Zero/geffen.gnd#
-geffen.gat#Zero/geffen.gat#
-geffen.rsw#Zero/geffen.rsw#
+geffen.gnd#Zero\geffen.gnd#
+geffen.gat#Zero\geffen.gat#
+geffen.rsw#Zero\geffen.rsw#
 
-alberta.gnd#Zero/alberta.gnd#
-alberta.gat#Zero/alberta.gat#
-alberta.rsw#Zero/alberta.rsw#
+alberta.gnd#Zero\alberta.gnd#
+alberta.gat#Zero\alberta.gat#
+alberta.rsw#Zero\alberta.rsw#
 
-aldebaran.gnd#Zero/aldebaran.gnd#
-aldebaran.gat#Zero/aldebaran.gat#
-aldebaran.rsw#Zero/aldebaran.rsw#
+aldebaran.gnd#Zero\aldebaran.gnd#
+aldebaran.gat#Zero\aldebaran.gat#
+aldebaran.rsw#Zero\aldebaran.rsw#
